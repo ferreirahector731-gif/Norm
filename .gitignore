@@ -1,0 +1,46 @@
+# Flutter/Dart build and packages cache
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+
+# Web compilation
+build/web/
+
+# Secrets and environment variables (Zero Leak Policy - STRICT)
+.env
+.env.*
+*.secret
+*.key
+credentials.json
+google-services.json
+key.properties
+*.jks
+*.keystore
+*secret*
+*credential*
+supabase_keys.json
+
+# Android specific builds/keys
+android/app/key.properties
+android/app/google-services.json
+android/app/*.jks
+android/app/*.keystore
+android/.gradle/
+android/local.properties
+
+# iOS specific build/keys
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Runner/GoogleService-Info.plist
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
