@@ -35,7 +35,10 @@ dependencies:
   provider: ^6.1.2
   connectivity_plus: ^6.1.4
   supabase_flutter: ^2.6.0
-  appflowy_editor: 6.0.0
+  appflowy_editor:
+    git:
+      url: https://github.com/AppFlowy-IO/appflowy-editor.git
+      ref: main
   isar: ^3.1.0+1
   isar_flutter_libs: ^3.1.0+1
   path_provider: ^2.1.3
