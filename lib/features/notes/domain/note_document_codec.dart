@@ -36,8 +36,8 @@ class NoteDocumentCodec {
     final delta = node.delta;
     if (delta != null) {
       for (final op in delta) {
-        if (op.data is String) {
-          buffer.write(op.data as String);
+        if (op.value is String) {
+          buffer.write(op.value as String);
           buffer.write(' ');
         }
       }
