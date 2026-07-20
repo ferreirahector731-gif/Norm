@@ -71,6 +71,10 @@ flutter_launcher_icons:
     generate: true
     image_path: "assets/icon/logo.png"
     icon_size: 256
+  linux:
+    generate: true
+    image_path: "assets/icon/logo.png"
+    icon_size: 256
   android_adaptive_icon_background: "#0B0B0F"
   android_adaptive_icon_foreground: "assets/icon/logo.png"
   image_path: "assets/icon/logo.png"
