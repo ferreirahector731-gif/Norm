@@ -11,6 +11,7 @@ class ChatMessage {
   /// Nullable — mensajes globales si no están vinculados a una nota.
   int? noteId;
 
+  @enumerated
   late MessageRole role;
   late String content;
   late String provider;
