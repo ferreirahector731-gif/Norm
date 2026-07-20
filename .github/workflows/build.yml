@@ -140,22 +140,26 @@ jobs:
           flutter pub run flutter_native_splash:create
 
       - name: Build
-        run: flutter build macos --release
+        run: |
+          flutter build macos --release
+          BUILD_EXIT_CODE=$?
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
+            echo "❌ Build de macOS falló con código $BUILD_EXIT_CODE"
+            exit $BUILD_EXIT_CODE
+          fi
 
       - name: Package macOS
         run: |
-          cd build/macos/Build/Products/Release
-          # Verificar que existe al menos un .app
+          cd build/macos/Build/Products/Release || exit 1
+          echo "Contenido del directorio:"
+          ls -la
           if ! ls *.app &> /dev/null; then
-            echo "Error: No .app file found in $(pwd)"
-            ls -la
+            echo "❌ Error: No se encontró ningún .app en $(pwd)"
             exit 1
           fi
           APP_NAME=$(ls *.app | head -1)
           echo "Empaquetando $APP_NAME"
-          # Empaquetar el .app completo, no solo Contents
           zip -r "../../../../Norm_macOS_v1.3.0.zip" "$APP_NAME"
-          ls -la
 
       - uses: actions/upload-artifact@v4
         with:
