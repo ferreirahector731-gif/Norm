@@ -48,7 +48,7 @@ jobs:
           path: Norm_Windows_${{ github.ref_name }}.zip
 
   build-android:
-    if: false
+    continue-on-error: true
     name: Android APK
     runs-on: ubuntu-latest
 
@@ -120,7 +120,7 @@ jobs:
           path: Norm_Linux_${{ github.ref_name }}.tar.gz
 
   build-macos:
-    if: false
+    continue-on-error: true
     name: macOS
     runs-on: macos-latest
 
@@ -151,12 +151,12 @@ jobs:
             exit 1
           fi
           echo "Packaging $APP_NAME"
-          zip -r "../../../../Norm_macOS_v1.1.0.zip" "$APP_NAME"
+          zip -r "../../../../Norm_macOS_v1.3.0.zip" "$APP_NAME"
 
       - uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: Norm_macOS_v1.1.0.zip
+          path: Norm_macOS_v1.3.0.zip
 
   release:
     name: Create Release
@@ -187,7 +187,16 @@ jobs:
             **Linux**
             - `Norm_Linux_${{ github.ref_name }}.tar.gz` — AppImage / bundle portable
 
+            **Android** (experimental)
+            - `Norm_${{ github.ref_name }}_arm64-v8a.apk` — Dispositivos modernos
+            - `Norm_${{ github.ref_name }}_armeabi-v7a.apk` — Dispositivos antiguos
+            - `Norm_${{ github.ref_name }}_x86_64.apk` — Emuladores
+
+            **macOS** (experimental)
+            - `Norm_macOS_v1.3.0.zip` — Aplicación para macOS
+
             ### Notas
+            - Android y macOS son experimentales en esta versión.
             - Para Windows, también puedes generar un instalador `.exe` con Inno Setup
               usando `installer/setup.iss`.
           draft: false
