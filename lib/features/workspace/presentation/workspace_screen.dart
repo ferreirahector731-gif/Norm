@@ -311,7 +311,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
         mini: true,
         backgroundColor: scheme.primary,
         foregroundColor: scheme.onPrimary,
-        onPressed: () => showAiAssistant(context),
+        onPressed: () => showAiAssistant(context, noteId: _activeNote?.id),
         child: const Icon(Icons.auto_awesome),
       ),
     );
@@ -370,7 +370,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
               IconButton(
                 icon: Icon(Icons.auto_awesome, color: scheme.primary),
                 tooltip: 'Asistente IA',
-                onPressed: () => showAiAssistant(context),
+                onPressed: () => showAiAssistant(context, noteId: _activeNote?.id),
               ),
             ],
           ),
@@ -760,7 +760,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
           IconButton(
             icon: Icon(Icons.auto_awesome, color: scheme.primary),
             tooltip: 'Asistente IA',
-            onPressed: () => showAiAssistant(context),
+            onPressed: () => showAiAssistant(context, noteId: _activeNote?.id),
           ),
         ],
       ),

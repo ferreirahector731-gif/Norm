@@ -39,11 +39,6 @@ pubspec.lock
 .pub/
 .dart_tool/package_config.json
 
-# ── Archivos generados por build_runner / Isar ───────────────
-**/*.g.dart
-**/*.freezed.dart
-**/*.mocks.dart
-
 # ── Bases de datos locales (desarrollo) ──────────────────────
 *.db
 *.sqlite

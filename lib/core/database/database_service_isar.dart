@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../features/ai/domain/chat_message_model.dart';
 import '../../features/notes/domain/note_model.dart';
 
 class DatabaseService {
@@ -20,7 +21,7 @@ class DatabaseService {
 
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
-      [NoteModelSchema],
+      [NoteModelSchema, ChatMessageSchema],
       directory: dir.path,
     );
   }
@@ -116,6 +117,41 @@ class DatabaseService {
         note.lastSyncedAt = DateTime.now();
         await isar.noteModels.put(note);
       }
+    });
+  }
+
+  // ── Chat Messages ──────────────────────────────────────
+
+  static Future<void> saveChatMessage(ChatMessage msg) async {
+    await isar.writeTxn(() async {
+      await isar.chatMessages.put(msg);
+    });
+  }
+
+  /// Retorna mensajes de chat, opcionalmente filtrados por nota.
+  static Future<List<ChatMessage>> getChatMessages({
+    int? noteId,
+    int limit = 50,
+  }) async {
+    final query = isar.chatMessages.where().sortByCreatedAtDesc();
+    if (noteId != null) {
+      return query.filter().noteIdEqualTo(noteId).findAll();
+    }
+    final messages = await query.findAll();
+    return messages.take(limit).toList();
+  }
+
+  /// Elimina mensajes creados antes de [cutoff].
+  static Future<int> deleteOldChatMessages(DateTime cutoff) async {
+    return isar.writeTxn<int>(() async {
+      final ids = await isar.chatMessages
+          .where()
+          .filter()
+          .createdAtLessThan(cutoff)
+          .idProperty()
+          .findAll();
+      if (ids.isEmpty) return 0;
+      return isar.chatMessages.deleteAll(ids);
     });
   }
 }

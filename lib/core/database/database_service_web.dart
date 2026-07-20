@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/ai/domain/chat_message_model.dart';
 import '../../features/notes/domain/note_model.dart';
 
 class DatabaseService {
@@ -169,4 +170,95 @@ class DatabaseService {
     }
     return note;
   }
+
+  // ── Chat Messages (SharedPreferences) ──────────────────
+
+  static const _chatKey = 'nota_ia_chat_messages_v1';
+
+  static Future<void> saveChatMessage(ChatMessage msg) async {
+    final prefs = _prefs;
+    if (prefs == null) return;
+    final list = await _getChatList();
+    if (msg.id == 0) {
+      msg.id = _nextChatId(list);
+    }
+    final idx = list.indexWhere((m) => m.id == msg.id);
+    if (idx >= 0) {
+      list[idx] = msg;
+    } else {
+      list.add(msg);
+    }
+    await prefs.setString(
+      _chatKey,
+      jsonEncode(list.map(_chatToMap).toList()),
+    );
+  }
+
+  static Future<List<ChatMessage>> getChatMessages({
+    int? noteId,
+    int limit = 50,
+  }) async {
+    final list = await _getChatList();
+    var filtered = list;
+    if (noteId != null) {
+      filtered = list.where((m) => m.noteId == noteId).toList();
+    }
+    filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return filtered.take(limit).toList();
+  }
+
+  static Future<int> deleteOldChatMessages(DateTime cutoff) async {
+    final prefs = _prefs;
+    if (prefs == null) return 0;
+    final list = await _getChatList();
+    final before = list.length;
+    list.removeWhere((m) => m.createdAt.isBefore(cutoff));
+    final deleted = before - list.length;
+    if (deleted > 0) {
+      await prefs.setString(
+        _chatKey,
+        jsonEncode(list.map(_chatToMap).toList()),
+      );
+    }
+    return deleted;
+  }
+
+  static Future<List<ChatMessage>> _getChatList() async {
+    final prefs = _prefs;
+    if (prefs == null) return [];
+    final raw = prefs.getString(_chatKey);
+    if (raw == null || raw.isEmpty) return [];
+    final decoded = jsonDecode(raw);
+    if (decoded is! List) return [];
+    return decoded
+        .whereType<Map>()
+        .map((m) => _chatFromMap(Map<String, dynamic>.from(m)))
+        .toList();
+  }
+
+  static int _nextChatId(List<ChatMessage> existing) {
+    if (existing.isEmpty) return 1;
+    return existing.map((m) => m.id).reduce((a, b) => a > b ? a : b) + 1;
+  }
+
+  static Map<String, dynamic> _chatToMap(ChatMessage msg) => {
+        'id': msg.id,
+        'noteId': msg.noteId,
+        'role': msg.role.index,
+        'content': msg.content,
+        'provider': msg.provider,
+        'model': msg.model,
+        'createdAt': msg.createdAt.toIso8601String(),
+        'retentionSeconds': msg.retentionSeconds,
+      };
+
+  static ChatMessage _chatFromMap(Map<String, dynamic> map) => ChatMessage(
+        noteId: map['noteId'] as int?,
+        role: MessageRole.values[map['role'] as int? ?? 0],
+        content: map['content'] as String? ?? '',
+        provider: map['provider'] as String? ?? '',
+        model: map['model'] as String?,
+        createdAt: DateTime.parse(map['createdAt'] as String),
+        retentionSeconds: map['retentionSeconds'] as int? ?? 2592000,
+      )..id = map['id'] as int? ?? 0;
 }

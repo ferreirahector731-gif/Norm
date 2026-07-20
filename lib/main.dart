@@ -6,9 +6,13 @@ import 'core/theme/app_theme.dart';
 import 'features/auth/data/auth_service.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/workspace/presentation/workspace_screen.dart';
+import 'features/ai/domain/retention_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Iniciar limpieza programada de mensajes de chat
+  RetentionService().start();
 
   await Supabase.initialize(
     url: 'https://rwwebuzczalzzuxkdlwc.supabase.co',
