@@ -52,7 +52,7 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
   Timer? _loadingTimer;
 
   Timer? _saveDebounce;
-  StreamSubscription<EditorTransaction>? _editorSubscription;
+  StreamSubscription<Transaction>? _editorSubscription;
 
   @override
   void initState() {
