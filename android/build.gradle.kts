@@ -19,6 +19,18 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// Forzar namespace en dependencias nativas (isar_flutter_libs, etc.) que no declaren namespace
+subprojects {
+    afterEvaluate {
+        if (plugins.hasPlugin("com.android.library")) {
+            val android = extensions.getByType(com.android.build.gradle.LibraryExtension::class.java)
+            if (android.namespace == null) {
+                android.namespace = project.group.toString().ifEmpty { "com.example.${project.name.replace("-", "_")}" }
+            }
+        }
+    }
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }

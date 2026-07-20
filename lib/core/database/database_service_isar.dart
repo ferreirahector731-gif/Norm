@@ -133,11 +133,17 @@ class DatabaseService {
     int? noteId,
     int limit = 50,
   }) async {
-    final query = isar.chatMessages.where().sortByCreatedAtDesc();
-    if (noteId != null) {
-      return query.filter().noteIdEqualTo(noteId).findAll();
-    }
-    final messages = await query.findAll();
+    final messages = noteId != null
+        ? await isar.chatMessages
+            .where()
+            .filter()
+            .noteIdEqualTo(noteId)
+            .sortByCreatedAtDesc()
+            .findAll()
+        : await isar.chatMessages
+            .where()
+            .sortByCreatedAtDesc()
+            .findAll();
     return messages.take(limit).toList();
   }
 

@@ -64,7 +64,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
 
     _inputController.clear();
 
-    final userMsg = ChatMessage(
+    final userMsg = ChatMessage.create(
       noteId: widget.noteId,
       role: MessageRole.user,
       content: text,
@@ -98,7 +98,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
               _messages.last.role == MessageRole.assistant) {
             _messages.last.content = buffer.toString();
           } else {
-            _messages.add(ChatMessage(
+            _messages.add(ChatMessage.create(
               noteId: widget.noteId,
               role: MessageRole.assistant,
               content: buffer.toString(),
@@ -111,7 +111,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
 
       // Guardar mensaje del asistente completo
       if (buffer.isNotEmpty && mounted) {
-        final assistantMsg = ChatMessage(
+        final assistantMsg = ChatMessage.create(
           noteId: widget.noteId,
           role: MessageRole.assistant,
           content: buffer.toString(),
@@ -122,7 +122,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _messages.add(ChatMessage(
+        _messages.add(ChatMessage.create(
           noteId: widget.noteId,
           role: MessageRole.assistant,
           content: 'Error: $e',
