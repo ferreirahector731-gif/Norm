@@ -1,46 +1,96 @@
-# Flutter/Dart build and packages cache
+# ==============================================================
+# Norm — .gitignore
+# ==============================================================
+
+# ── Credenciales y configuraciones sensibles ──────────────────
+.env
+.env.local
+.env.production
+*.key
+*.pem
+*.p12
+supabase/config.toml
+**/supabase/config.toml
+
+# ── Firmas Android ───────────────────────────────────────────
+*.jks
+*.keystore
+key.properties
+android/key.properties
+android/app/key.properties
+android/app/*.jks
+android/app/*.keystore
+android/signing/
+
+# ── Directorios de compilación temporal ──────────────────────
+build/
 .dart_tool/
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
-build/
+pubspec.lock
 
-# Web compilation
-build/web/
+# ── Dependencias ─────────────────────────────────────────────
+.pub/
+.dart_tool/package_config.json
 
-# Secrets and environment variables (Zero Leak Policy - STRICT)
-.env
-.env.*
-*.secret
-*.key
-credentials.json
-google-services.json
-key.properties
-*.jks
-*.keystore
-*secret*
-*credential*
-supabase_keys.json
+# ── Archivos generados por build_runner / Isar ───────────────
+**/*.g.dart
+**/*.freezed.dart
+**/*.mocks.dart
 
-# Android specific builds/keys
-android/app/key.properties
-android/app/google-services.json
-android/app/*.jks
-android/app/*.keystore
-android/.gradle/
-android/local.properties
+# ── Bases de datos locales (desarrollo) ──────────────────────
+*.db
+*.sqlite
+*.sqlite3
+*.isar
+*.isar.lock
+*.db-journal
+*.db-wal
+*.db-shm
 
-# iOS specific build/keys
-ios/Flutter/Generated.xcconfig
-ios/Flutter/flutter_export_environment.sh
-ios/Runner/GoogleService-Info.plist
+# ── Logs y dumps ─────────────────────────────────────────────
+*.log
+*.log.*
+*.trace
+*.dmp
+*.stackdump
 
-# IDEs and Editors
-.idea/
-.vscode/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# ── Sistema ──────────────────────────────────────────────────
+*.swp
+*.swo
+*~
 .DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── Flutter / Dart ───────────────────────────────────────────
+.dart_tool/
+.pub-cache/
+.packages
+pubspec.lock
+**/generated_plugin_registrant.dart
+
+# ── Android Studio / IntelliJ ────────────────────────────────
+*.iml
+.idea/
+.gradle/
+local.properties
+
+# ── Windows ──────────────────────────────────────────────────
+*.exe
+*.exe.config
+*.dll
+*.pdb
+*.msi
+*.mst
+*.cab
+*.nupkg
+
+# ── Instaladores generados ───────────────────────────────────
+installer/Output/

@@ -1,0 +1,121 @@
+import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
+
+import '../../features/notes/domain/note_model.dart';
+
+class DatabaseService {
+  static Isar? _isar;
+
+  static Isar get isar {
+    if (_isar == null) {
+      throw StateError(
+        'Isar no está inicializado. Llama a DatabaseService.initialize() primero.',
+      );
+    }
+    return _isar!;
+  }
+
+  static Future<void> initialize() async {
+    if (_isar != null) return;
+
+    final dir = await getApplicationDocumentsDirectory();
+    _isar = await Isar.open(
+      [NoteModelSchema],
+      directory: dir.path,
+    );
+  }
+
+  static Future<void> saveNote(NoteModel note) async {
+    note.updatedAt = DateTime.now();
+    note.isDirty = true;
+    await isar.writeTxn(() async {
+      await isar.noteModels.put(note);
+    });
+  }
+
+  static Future<List<NoteModel>> getAllNotes() async {
+    final notes = await isar.noteModels.where().findAll();
+    notes.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return notes;
+  }
+
+  static Future<void> deleteNote(int id) async {
+    await isar.writeTxn(() async {
+      await isar.noteModels.delete(id);
+    });
+  }
+
+  // --- Sync helpers ---
+
+  /// Retorna todas las notas con cambios locales pendientes.
+  static Future<List<NoteModel>> getDirtyNotes() async {
+    return isar.noteModels.where().filter().isDirtyEqualTo(true).findAll();
+  }
+
+  /// Marca una nota como sincronizada tras subida exitosa a la nube.
+  static Future<void> markSynced(NoteModel note, String remoteId) async {
+    await isar.writeTxn(() async {
+      final local = await isar.noteModels.get(note.id);
+      if (local != null) {
+        local.remoteId = remoteId;
+        local.isDirty = false;
+        local.lastSyncedAt = DateTime.now();
+        await isar.noteModels.put(local);
+      }
+    });
+  }
+
+  /// Obtiene la nota con la última actualización (para comparación de conflictos).
+  static Future<NoteModel?> getNoteById(int id) async {
+    return isar.noteModels.get(id);
+  }
+
+  /// Guarda una nota remota en Isar solo si es más reciente (Last-Write-Wins).
+  static Future<void> upsertRemoteNote({
+    required String remoteId,
+    required String title,
+    required String contentJson,
+    required DateTime remoteUpdatedAt,
+    String? localRemoteId,
+    int? localId,
+  }) async {
+    await isar.writeTxn(() async {
+      // Buscar si ya existe localmente por remoteId o por id local
+      NoteModel? existing;
+      if (localId != null) {
+        existing = await isar.noteModels.get(localId);
+      }
+      if (existing == null && remoteId.isNotEmpty) {
+        existing = await isar.noteModels
+            .where()
+            .filter()
+            .remoteIdEqualTo(remoteId)
+            .findFirst();
+      }
+
+      if (existing != null) {
+        // Last-Write-Wins: solo actualizar si la nube es más reciente
+        if (remoteUpdatedAt.isAfter(existing.updatedAt)) {
+          existing.title = title;
+          existing.contentJson = contentJson;
+          existing.updatedAt = remoteUpdatedAt;
+          existing.isDirty = false;
+          existing.remoteId = remoteId;
+          existing.lastSyncedAt = DateTime.now();
+          await isar.noteModels.put(existing);
+        }
+      } else {
+        // No existe localmente, insertar como nueva
+        final note = NoteModel.create(
+          title: title,
+          contentJson: contentJson,
+        );
+        note.updatedAt = remoteUpdatedAt;
+        note.isDirty = false;
+        note.remoteId = remoteId;
+        note.lastSyncedAt = DateTime.now();
+        await isar.noteModels.put(note);
+      }
+    });
+  }
+}
