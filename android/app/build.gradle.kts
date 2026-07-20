@@ -13,10 +13,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     defaultConfig {
         applicationId = "com.example.nota_ia_app"
         minSdk = 21
@@ -32,10 +28,10 @@ android {
     }
 
     androidResources {
-        noCompress = listOf("tflite")
+        noCompress += "tflite"
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "META-INF/*"
         }
