@@ -44,6 +44,7 @@ jobs:
           path: Norm_Windows_${{ github.ref_name }}.zip
 
   build-android:
+    if: false
     name: Android APK
     runs-on: ubuntu-latest
 
@@ -115,6 +116,7 @@ jobs:
           path: Norm_Linux_${{ github.ref_name }}.tar.gz
 
   build-macos:
+    if: false
     name: macOS
     runs-on: macos-latest
 
@@ -154,7 +156,7 @@ jobs:
 
   release:
     name: Create Release
-    needs: [build-windows, build-android, build-linux, build-macos]
+    needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
 
     steps:
@@ -176,20 +178,10 @@ jobs:
             **Windows**
             - `Norm_Windows_${{ github.ref_name }}.zip` — Ejecutable portátil
 
-            **Android**
-            - `Norm_${{ github.ref_name }}_arm64-v8a.apk` — Dispositivos modernos (recomendado)
-            - `Norm_${{ github.ref_name }}_armeabi-v7a.apk` — Dispositivos antiguos
-            - `Norm_${{ github.ref_name }}_x86_64.apk` — Emuladores
-
             **Linux**
             - `Norm_Linux_${{ github.ref_name }}.tar.gz` — AppImage / bundle portable
 
-            **macOS**
-            - `Norm_macOS_${{ github.ref_name }}.zip` — Aplicación para macOS
-
             ### Notas
-            - Las APKs **no están firmadas**; para distribución en Play Store se requiere
-              firma adicional con `jarsigner` o Android Studio.
             - Para Windows, también puedes generar un instalador `.exe` con Inno Setup
               usando `installer/setup.iss`.
           draft: false
