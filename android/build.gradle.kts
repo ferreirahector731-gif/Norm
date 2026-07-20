@@ -24,6 +24,16 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+subprojects {
+    afterEvaluate {
+        if (project.name == "isar_flutter_libs") {
+            android {
+                namespace = "dev.isar.isar_flutter_libs"
+            }
+        }
+    }
+}
+
 tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
 }
