@@ -36,8 +36,9 @@ class NoteDocumentCodec {
     final delta = node.delta;
     if (delta != null) {
       for (final op in delta) {
-        final text = op.insert;
-        if (text is String) {
+        final json = op.toJson();
+        final text = json['insert'] as String? ?? json['data'] as String? ?? '';
+        if (text.isNotEmpty) {
           buffer.write(text);
           buffer.write(' ');
         }
