@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Norm - Notas Inteligentes</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: #0b0b0f;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .card {
+      background: #1a1a24;
+      border-radius: 24px;
+      padding: 3rem;
+      max-width: 640px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(157, 78, 221, 0.15);
+    }
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    p { color: #aaa; font-size: 1.1rem; margin-bottom: 2rem; }
+    .badge {
+      display: inline-block;
+      background: #9d4edd;
+      color: #fff;
+      padding: 0.25rem 1rem;
+      border-radius: 99px;
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+    .buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #9d4edd;
+      color: #fff;
+      text-decoration: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #7b2cb5; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #9d4edd;
+      color: #9d4edd;
+    }
+    .btn-outline:hover { background: #9d4edd22; }
+    .links { margin-top: 1.5rem; font-size: 0.9rem; }
+    .links a { color: #9d4edd; text-decoration: none; }
+    .links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Norm</h1>
+    <p>Tus notas con inteligencia local</p>
+    <div class="badge">Beta</div>
+    <div class="buttons" id="downloads">
+      <a href="#" class="btn" id="dl-windows">⬇ Windows</a>
+      <a href="#" class="btn" id="dl-linux">⬇ Linux</a>
+    </div>
+    <div class="links">
+      <a href="https://github.com/ferreirahector731-gif/Norm">Repositorio</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/ferreirahector731-gif/Norm/releases">Changelog</a>
+    </div>
+  </div>
+
+  <script>
+    (async () => {
+      try {
+        const r = await fetch('https://api.github.com/repos/ferreirahector731-gif/Norm/releases/latest');
+        if (!r.ok) return;
+        const data = await r.json();
+        const tag = data.tag_name;
+        const assets = data.assets || [];
+        for (const a of assets) {
+          const name = a.name || '';
+          const url = a.browser_download_url;
+          if (name.includes('Windows')) document.getElementById('dl-windows').href = url;
+          if (name.includes('Linux'))   document.getElementById('dl-linux').href = url;
+        }
+      } catch (_) { /* silencioso */ }
+    })();
+  </script>
+</body>
+</html>

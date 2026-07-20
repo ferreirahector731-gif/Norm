@@ -1,46 +1,67 @@
 # Norm
 
-Aplicación de notas multimedia local-first con sincronización en la nube y asistencia de IA.
+> Aplicación de notas multimedia local-first con sincronización en la nube y asistencia de IA.
 
-## 🚀 Características Clave
+**Estado del proyecto:** Beta activo. Las funcionalidades principales están estables en escritorio.
 
-* **Arquitectura Local-First:** Almacenamiento y procesamiento inmediato en el dispositivo mediante la base de datos indexada Isar. Operatividad total sin conexión a internet.
-* **Sincronización Bidireccional:** Respaldo automático en la nube a través de Supabase con aislamiento total por usuario mediante políticas RLS (Row Level Security).
-* **Editor de Bloques Modular:** Lienzo interactivo basado en componentes para texto estructurado, listas, pizarrones y marcadores multimedia.
-* **Asistente de IA con Consentimiento:** Integración con motores de IA (Local/Ollama o APIs externas) mediante captura de estado (snapshot) previa a la consolidación del texto.
-* **Interfaz Premium:** Interfaz de usuario responsiva con estética glassmorphic y soporte nativo para tema oscuro.
+## Plataformas soportadas
 
-## 🛠️ Tecnologías Utilizadas
+| Plataforma | Estado |
+|-----------|--------|
+| Windows   | ✅ Listo |
+| Linux     | ✅ Listo |
+| Android   | 🚧 En desarrollo |
+| macOS     | 🚧 En desarrollo |
 
-* **Framework:** Flutter 3.x
-* **Base de Datos Local:** Isar Database
-* **Backend & Sync:** Supabase
-* **Editor Core:** AppFlowyEditor
+## Características Clave
 
-## 📦 Compilación y Despliegue
+- **Arquitectura Local-First:** Almacenamiento y procesamiento inmediato en el dispositivo mediante Isar Database. Operatividad total sin conexión.
+- **Sincronización Bidireccional:** Respaldo automático en la nube con Supabase y aislamiento por usuario mediante RLS.
+- **Editor de Bloques Modular:** Lienzo interactivo para texto estructurado, listas, pizarrones y marcadores multimedia.
+- **Asistente de IA con Consentimiento:** Integración con motores de IA (Local/Ollama o APIs externas).
+- **Interfaz Premium:** Diseño glassmorphic con soporte nativo para tema oscuro.
 
-El proyecto cuenta con un script automatizado en PowerShell para simplificar el pipeline de desarrollo:
+## Tecnologías
+
+- **Framework:** Flutter 3.x
+- **Base de Datos Local:** Isar
+- **Backend & Sync:** Supabase
+- **Editor:** AppFlowyEditor
+
+## Cómo contribuir
+
+1. Haz fork del repositorio.
+2. Crea una rama (`git checkout -b feature/mi-mejora`).
+3. Haz commit de tus cambios (`git commit -m 'feat: agregar mi mejora'`).
+4. Haz push a la rama (`git push origin feature/mi-mejora`).
+5. Abre un Pull Request.
+
+## Changelog
+
+### v1.2.0 (actual)
+- UI: botón de login centrado y con tamaño controlado.
+- Logo: iconos regenerados para Windows y Linux.
+- Banner de bienvenida Beta.
+- Documentación expandida.
+- Estructura preparada para auto‑actualización y empaquetado MSIX.
+
+### v1.1.0
+- Builds automatizados con GitHub Actions (Windows y Linux).
+- Release con instaladores de Windows y Linux.
+- Correcciones en Gradle para Android.
+
+## Compilación
 
 ```powershell
-# Generar iconos y pantallas de carga desde C:\Src\logo\logo.png
-.\scripts\build.ps1 -Target logo
-
-# Compilar instalador ejecutable para Windows
-.\scripts\build.ps1 -Target windows
-
-# Generar APKs optimizados por arquitectura para Android
-.\scripts\build.ps1 -Target apk
+.\scripts\build.ps1 -Target logo      # Generar iconos
+.\scripts\build.ps1 -Target windows   # Compilar para Windows
+.\scripts\build.ps1 -Target linux     # Compilar para Linux
 ```
 
-### Pasos individuales
+## Licencia
 
-```powershell
-.\scripts\build.ps1 -Target clean    # Limpiar artefactos de compilación
-.\scripts\build.ps1 -Target icons    # Regenerar iconos de la aplicación
-.\scripts\build.ps1 -Target splash   # Regenerar pantalla de carga
-.\scripts\build.ps1 -Target all      # Ejecutar todos los pasos en orden
-```
+Apache 2.0. Consulta el archivo `LICENSE`.
 
-## 📄 Licencia
+---
 
-Distribuido bajo la Licencia Apache 2.0. Consulta el archivo `LICENSE` para más información.
+**Web:** https://ferreirahector731-gif.github.io/Norm

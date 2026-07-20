@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.2.0+1
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -41,6 +41,7 @@ dependencies:
   path_provider: ^2.1.3
   shared_preferences: ^2.5.3
   package_info_plus: ^8.3.0
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:
@@ -51,6 +52,7 @@ dev_dependencies:
   isar_generator: ^3.1.0+1
   flutter_launcher_icons: ^0.14.3
   flutter_native_splash: ^2.4.4
+  msix: ^3.16.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -69,15 +71,22 @@ flutter_launcher_icons:
   ios: false
   windows:
     generate: true
-    image_path: "assets/icon/logo.png"
+    image_path: "assets/icon/icon.png"
     icon_size: 256
   linux:
     generate: true
-    image_path: "assets/icon/logo.png"
+    image_path: "assets/icon/icon.png"
     icon_size: 256
   android_adaptive_icon_background: "#0B0B0F"
-  android_adaptive_icon_foreground: "assets/icon/logo.png"
-  image_path: "assets/icon/logo.png"
+  android_adaptive_icon_foreground: "assets/icon/icon.png"
+  image_path: "assets/icon/icon.png"
+
+msix_config:
+  display_name: Norm
+  publisher_display_name: Norm
+  identity_name: com.example.nota_ia_app
+  msix_version: 1.2.0.0
+  logo_path: assets/icon/icon.png
 
 flutter_native_splash:
   color: "#0B0B0F"
