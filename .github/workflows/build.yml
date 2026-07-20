@@ -1,0 +1,66 @@
+name: Build Windows
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    name: Build Windows Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.x
+
+      - name: Copy logo
+        shell: pwsh
+        run: |
+          $src = "C:\Src\logo\logo.png"
+          if (Test-Path $src) {
+            Copy-Item -Path $src -Destination "assets\icon\logo.png" -Force
+            Copy-Item -Path $src -Destination "assets\splash\splash_logo.png" -Force
+          }
+
+      - name: Generate icons and splash
+        run: |
+          flutter pub get
+          flutter pub run flutter_launcher_icons
+          flutter pub run flutter_native_splash:create
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Package artifacts
+        shell: pwsh
+        run: |
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath Norm_Windows_${{ github.ref_name }}.zip
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Norm ${{ github.ref_name }}
+          body: |
+            ## Norm ${{ github.ref_name }}
+
+            ### Descarga
+            - **Windows:** `Norm_Windows_${{ github.ref_name }}.zip`
+
+            ### Instrucciones
+            1. Descarga el ZIP correspondiente a tu plataforma
+            2. Extrae el contenido en una carpeta
+            3. Ejecuta `nota_ia_app.exe`
+
+            > Para Windows, también puedes usar el instalador Inno Setup
+            > incluido en `installer/setup.iss`
+          draft: false
+          prerelease: false
+          files: |
+            Norm_Windows_${{ github.ref_name }}.zip

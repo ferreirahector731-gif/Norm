@@ -103,4 +103,4 @@ switch ($Target) {
   'all'     { Build-All }
 }
 
-Write-Host "`n✓ Build completado exitosamente." -ForegroundColor Green
+Write-Host "`n[OK] Build completado exitosamente." -ForegroundColor Green
