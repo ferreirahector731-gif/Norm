@@ -109,9 +109,40 @@ jobs:
           name: linux-build
           path: Norm_Linux_${{ github.ref_name }}.tar.gz
 
+  build-macos:
+    name: macOS
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - name: Generate assets
+        run: |
+          flutter pub get
+          flutter pub run flutter_launcher_icons
+          flutter pub run flutter_native_splash:create
+
+      - name: Build
+        run: flutter build macos --release
+
+      - name: Package
+        run: |
+          cd build/macos/Build/Products/Release
+          zip -r ../../../../../Norm_macOS_${{ github.ref_name }}.zip Norm.app
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: Norm_macOS_${{ github.ref_name }}.zip
+
   release:
     name: Create Release
-    needs: [build-windows, build-android, build-linux]
+    needs: [build-windows, build-android, build-linux, build-macos]
     runs-on: ubuntu-latest
 
     steps:
@@ -140,6 +171,9 @@ jobs:
 
             **Linux**
             - `Norm_Linux_${{ github.ref_name }}.tar.gz` — AppImage / bundle portable
+
+            **macOS**
+            - `Norm_macOS_${{ github.ref_name }}.zip` — Aplicación para macOS
 
             ### Notas
             - Las APKs **no están firmadas**; para distribución en Play Store se requiere
