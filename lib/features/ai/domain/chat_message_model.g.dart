@@ -111,17 +111,15 @@ ChatMessage _chatMessageDeserialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = ChatMessage(
-    noteId: null,
-    role: MessageRole.values[reader.readByteOrNull(offsets[6]) ?? 0],
-    content: reader.readString(offsets[0]),
-    provider: reader.readString(offsets[4]),
-    model: reader.readStringOrNull(offsets[2]),
-    createdAt: reader.readDateTime(offsets[1]),
-    retentionSeconds: reader.readLongOrNull(offsets[5]) ?? 2592000,
-  );
+  final object = ChatMessage();
+  object.content = reader.readString(offsets[0]);
+  object.createdAt = reader.readDateTime(offsets[1]);
   object.id = id;
+  object.model = reader.readStringOrNull(offsets[2]);
   object.noteId = reader.readLongOrNull(offsets[3]);
+  object.provider = reader.readString(offsets[4]);
+  object.retentionSeconds = reader.readLongOrNull(offsets[5]) ?? 2592000;
+  object.role = MessageRole.values[reader.readByteOrNull(offsets[6]) ?? 0];
   return object;
 }
 

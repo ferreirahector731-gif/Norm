@@ -8,7 +8,6 @@ enum MessageRole { user, assistant, system }
 class ChatMessage {
   Id id = Isar.autoIncrement;
 
-  /// Nullable — mensajes globales si no están vinculados a una nota.
   int? noteId;
 
   @enumerated
@@ -17,18 +16,16 @@ class ChatMessage {
   late String provider;
   String? model;
   late DateTime createdAt;
+  int retentionSeconds = 2592000;
 
-  /// Segundos de retención configurados al momento de crear el mensaje
-  /// (para que RetentionService sepa el plazo aplicable).
-  int retentionSeconds = 2592000; // 30 días por defecto
+  ChatMessage();
 
-  ChatMessage({
+  ChatMessage.create({
     this.noteId,
     required this.role,
     required this.content,
     required this.provider,
     this.model,
-    DateTime? createdAt,
     this.retentionSeconds = 2592000,
-  }) : createdAt = createdAt ?? DateTime.now();
+  }) : createdAt = DateTime.now();
 }
