@@ -145,12 +145,15 @@ jobs:
       - name: Package macOS
         run: |
           cd build/macos/Build/Products/Release
-          APP_NAME=$(ls *.app | head -1)
-          if [ -z "$APP_NAME" ]; then
-            echo "Error: No .app file found"
+          # Verificar que existe al menos un .app
+          if ! ls *.app &> /dev/null; then
+            echo "Error: No .app file found in $(pwd)"
+            ls -la
             exit 1
           fi
+          APP_NAME=$(ls *.app | head -1)
           echo "Empaquetando $APP_NAME"
+          # Empaquetar el .app completo, no solo Contents
           zip -r "../../../../Norm_macOS_v1.3.0.zip" "$APP_NAME"
           ls -la
 

@@ -5,7 +5,7 @@ buildscript {
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.2")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
     }
 }
 
@@ -32,8 +32,11 @@ tasks.register("clean", Delete) {
 subprojects {
     afterEvaluate {
         if (project.name == "isar_flutter_libs") {
-            project.extensions.findByType(com.android.build.gradle.LibraryExtension::class.java)?.apply {
-                namespace = "dev.isar.isar_flutter_libs"
+            // Usar LibraryExtension para evitar el error de android no encontrado
+            if (project.extensions.findByName("android") != null) {
+                project.extensions.findByType(com.android.build.gradle.LibraryExtension::class.java)?.apply {
+                    namespace = "dev.isar.isar_flutter_libs"
+                }
             }
         }
     }
