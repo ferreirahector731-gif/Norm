@@ -42,17 +42,3 @@ flutter {
     source = "../.."
 }
 
-tasks.register("patchIsarManifest") {
-    doLast {
-        val manifestFile = file("build/intermediates/merged_manifests/release/AndroidManifest.xml")
-        if (manifestFile.exists()) {
-            val content = manifestFile.readText()
-            val patched = content.replace("""package="dev.isar.isar_flutter_libs"""", "")
-            manifestFile.writeText(patched)
-            println("Patched package attribute in merged manifest")
-        }
-    }
-}
-tasks.named("processReleaseManifest") {
-    dependsOn("patchIsarManifest")
-}
