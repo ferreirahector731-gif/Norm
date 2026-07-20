@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 env:
-  FLUTTER_VERSION: 3.x
+  FLUTTER_VERSION: '3.24.5'
 
 jobs:
   build-windows:
@@ -18,8 +18,8 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
 
       - name: Generate assets
         run: |
@@ -50,8 +50,8 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
 
       - name: Generate assets
         run: |
@@ -84,8 +84,8 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
 
       - name: Install Linux deps
         run: |
@@ -121,8 +121,8 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
 
       - name: Generate assets
         run: |
