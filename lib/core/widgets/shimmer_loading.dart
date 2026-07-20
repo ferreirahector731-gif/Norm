@@ -67,7 +67,7 @@ class _ShimmerPainter extends CustomPainter {
         end: Alignment.centerRight,
         colors: [
           Colors.transparent,
-          Colors.white.withValues(alpha: 0.08),
+          Colors.white.withOpacity(0.08),
           Colors.transparent,
         ],
         stops: [
@@ -178,10 +178,10 @@ class ShimmerBentoGrid extends StatelessWidget {
       margin: margin,
       height: height,
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow.withValues(alpha: 0.5),
+        color: scheme.surfaceContainerLow.withOpacity(0.5),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.08),
+          color: scheme.outlineVariant.withOpacity(0.08),
           width: 0.5,
         ),
       ),
@@ -193,7 +193,7 @@ class ShimmerBentoGrid extends StatelessWidget {
             width: 24,
             height: 16,
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHigh.withValues(alpha: 0.4),
+              color: scheme.surfaceContainerHigh.withOpacity(0.4),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -202,7 +202,7 @@ class ShimmerBentoGrid extends StatelessWidget {
             width: double.infinity,
             height: 12,
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHigh.withValues(alpha: 0.3),
+              color: scheme.surfaceContainerHigh.withOpacity(0.3),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -211,7 +211,7 @@ class ShimmerBentoGrid extends StatelessWidget {
             width: 80,
             height: 10,
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHigh.withValues(alpha: 0.2),
+              color: scheme.surfaceContainerHigh.withOpacity(0.2),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -272,7 +272,7 @@ class ShimmerEditor extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHigh.withValues(alpha: 0.25),
+        color: scheme.surfaceContainerHigh.withOpacity(0.25),
         borderRadius: BorderRadius.circular(6),
       ),
     );

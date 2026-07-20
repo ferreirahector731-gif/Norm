@@ -74,10 +74,10 @@ class ThemeProvider extends ChangeNotifier {
       displayColor: const Color(0xffF0F0F5),
     ),
     dividerTheme: DividerThemeData(
-      color: const Color(0xffFFFFFF).withValues(alpha: 0.06),
+      color: const Color(0xffFFFFFF).withOpacity(0.06),
       thickness: 0.5,
     ),
-    cardTheme: CardThemeData(
+    cardTheme: CardTheme(
       color: const Color(0xff1A1A22),
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -123,10 +123,10 @@ class ThemeProvider extends ChangeNotifier {
       displayColor: const Color(0xff0B0B0F),
     ),
     dividerTheme: DividerThemeData(
-      color: const Color(0xff000000).withValues(alpha: 0.06),
+      color: const Color(0xff000000).withOpacity(0.06),
       thickness: 0.5,
     ),
-    cardTheme: CardThemeData(
+    cardTheme: CardTheme(
       color: const Color(0xffFFFFFF),
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -172,10 +172,10 @@ class ThemeProvider extends ChangeNotifier {
       displayColor: const Color(0xff1C160E),
     ),
     dividerTheme: DividerThemeData(
-      color: const Color(0xff000000).withValues(alpha: 0.08),
+      color: const Color(0xff000000).withOpacity(0.08),
       thickness: 0.5,
     ),
-    cardTheme: CardThemeData(
+    cardTheme: CardTheme(
       color: const Color(0xffF4ECD8),
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

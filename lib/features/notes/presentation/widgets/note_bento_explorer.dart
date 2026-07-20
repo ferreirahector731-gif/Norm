@@ -111,7 +111,7 @@ class _NoteBentoExplorerState extends State<NoteBentoExplorer> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: scheme.primaryContainer.withValues(alpha: 0.25),
+              color: scheme.primaryContainer.withOpacity(0.25),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(Icons.grid_view_rounded, color: scheme.primary, size: 18),
@@ -149,10 +149,10 @@ class _NoteBentoExplorerState extends State<NoteBentoExplorer> {
           filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
           child: Container(
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHigh.withValues(alpha: 0.4),
+              color: scheme.surfaceContainerHigh.withOpacity(0.4),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: scheme.outlineVariant.withValues(alpha: 0.2),
+                color: scheme.outlineVariant.withOpacity(0.2),
                 width: 0.5,
               ),
             ),
@@ -163,12 +163,12 @@ class _NoteBentoExplorerState extends State<NoteBentoExplorer> {
               decoration: InputDecoration(
                 hintText: 'Buscar notas...',
                 hintStyle: TextStyle(
-                  color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  color: scheme.onSurfaceVariant.withOpacity(0.4),
                   fontSize: 14,
                 ),
                 prefixIcon: Icon(
                   Icons.search_rounded,
-                  color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  color: scheme.onSurfaceVariant.withOpacity(0.5),
                   size: 20,
                 ),
                 suffixIcon: _searchQuery.isNotEmpty
@@ -243,13 +243,13 @@ class _NoteBentoExplorerState extends State<NoteBentoExplorer> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: active
-              ? scheme.primary.withValues(alpha: 0.15)
-              : scheme.surfaceContainerHigh.withValues(alpha: 0.3),
+              ? scheme.primary.withOpacity(0.15)
+              : scheme.surfaceContainerHigh.withOpacity(0.3),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: active
-                ? scheme.primary.withValues(alpha: 0.4)
-                : scheme.outlineVariant.withValues(alpha: 0.15),
+                ? scheme.primary.withOpacity(0.4)
+                : scheme.outlineVariant.withOpacity(0.15),
             width: 0.5,
           ),
         ),
@@ -288,10 +288,10 @@ class _NoteBentoExplorerState extends State<NoteBentoExplorer> {
             child: Container(
               padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
-                color: scheme.surfaceContainerLow.withValues(alpha: 0.3),
+                color: scheme.surfaceContainerLow.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: scheme.outlineVariant.withValues(alpha: 0.12),
+                  color: scheme.outlineVariant.withOpacity(0.12),
                   width: 0.5,
                 ),
               ),
@@ -301,7 +301,7 @@ class _NoteBentoExplorerState extends State<NoteBentoExplorer> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: scheme.primary.withValues(alpha: 0.08),
+                      color: scheme.primary.withOpacity(0.08),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -309,7 +309,7 @@ class _NoteBentoExplorerState extends State<NoteBentoExplorer> {
                           ? Icons.search_off_rounded
                           : Icons.edit_note_rounded,
                       size: 36,
-                      color: scheme.primary.withValues(alpha: 0.6),
+                      color: scheme.primary.withOpacity(0.6),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -328,7 +328,7 @@ class _NoteBentoExplorerState extends State<NoteBentoExplorer> {
                     style: TextStyle(
                       fontSize: 13,
                       height: 1.5,
-                      color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                      color: scheme.onSurfaceVariant.withOpacity(0.6),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -413,8 +413,8 @@ class _BentoCard extends StatelessWidget {
         },
         child: Material(
           color: isActive
-              ? scheme.primaryContainer.withValues(alpha: 0.2)
-              : scheme.surfaceContainerLow.withValues(alpha: 0.4),
+              ? scheme.primaryContainer.withOpacity(0.2)
+              : scheme.surfaceContainerLow.withOpacity(0.4),
           borderRadius: BorderRadius.circular(14),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
@@ -425,8 +425,8 @@ class _BentoCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: isActive
-                      ? scheme.primary.withValues(alpha: 0.3)
-                      : scheme.outlineVariant.withValues(alpha: 0.12),
+                      ? scheme.primary.withOpacity(0.3)
+                      : scheme.outlineVariant.withOpacity(0.12),
                   width: 0.5,
                 ),
               ),
@@ -441,7 +441,7 @@ class _BentoCard extends StatelessWidget {
                         size: 18,
                         color: isActive
                             ? scheme.primary
-                            : scheme.onSurfaceVariant.withValues(alpha: 0.5),
+                            : scheme.onSurfaceVariant.withOpacity(0.5),
                       ),
                       const Spacer(),
                       if (isDirty)
@@ -453,7 +453,7 @@ class _BentoCard extends StatelessWidget {
                             color: scheme.tertiary,
                             boxShadow: [
                               BoxShadow(
-                                color: scheme.tertiary.withValues(alpha: 0.4),
+                                color: scheme.tertiary.withOpacity(0.4),
                                 blurRadius: 4,
                               ),
                             ],
@@ -478,7 +478,7 @@ class _BentoCard extends StatelessWidget {
                     _formatDate(note.updatedAt),
                     style: TextStyle(
                       fontSize: 11,
-                      color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      color: scheme.onSurfaceVariant.withOpacity(0.5),
                     ),
                   ),
                 ],

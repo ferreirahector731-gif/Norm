@@ -27,10 +27,10 @@ class AIApprovalBar extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
           decoration: BoxDecoration(
-            color: const Color(0xff0B0B0F).withValues(alpha: 0.85),
+            color: const Color(0xff0B0B0F).withOpacity(0.85),
             border: Border(
               top: BorderSide(
-                color: Colors.white.withValues(alpha: 0.06),
+                color: Colors.white.withOpacity(0.06),
                 width: 0.5,
               ),
             ),
@@ -66,7 +66,7 @@ class AIApprovalBar extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     height: 1.5,
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: Colors.white.withOpacity(0.7),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -95,9 +95,9 @@ class AIApprovalBar extends StatelessWidget {
                         icon: const Icon(Icons.refresh_rounded, size: 16),
                         label: const Text('Regenerar', style: TextStyle(fontSize: 13)),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white.withValues(alpha: 0.7),
+                          foregroundColor: Colors.white.withOpacity(0.7),
                           side: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.15),
+                            color: Colors.white.withOpacity(0.15),
                             width: 0.5,
                           ),
                           shape: RoundedRectangleBorder(
@@ -115,7 +115,7 @@ class AIApprovalBar extends StatelessWidget {
                           'Cancelar',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Colors.white.withValues(alpha: 0.5),
+                            color: Colors.white.withOpacity(0.5),
                           ),
                         ),
                       ),

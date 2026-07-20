@@ -17,8 +17,6 @@ class WhiteboardBlockComponentBuilder extends BlockComponentBuilder {
       configuration: configuration,
       actionBuilder: (context, state) =>
           actionBuilder(blockComponentContext, state),
-      actionTrailingBuilder: (context, state) =>
-          actionTrailingBuilder(blockComponentContext, state),
     );
   }
 
@@ -33,7 +31,6 @@ class WhiteboardBlockComponentWidget extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
-    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
 
@@ -63,10 +60,10 @@ class _WhiteboardBlockComponentWidgetState
       height: 240,
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: Colors.white.withOpacity(0.03),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
+          color: Colors.white.withOpacity(0.08),
           width: 0.5,
         ),
       ),
@@ -75,12 +72,12 @@ class _WhiteboardBlockComponentWidgetState
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.draw_outlined,
-                size: 32, color: Colors.white.withValues(alpha: 0.3)),
+                size: 32, color: Colors.white.withOpacity(0.3)),
             const SizedBox(height: 8),
             Text(
               'Pizarrón ($strokesJson.length trazos)',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.4),
+                color: Colors.white.withOpacity(0.4),
                 fontSize: 12,
               ),
             ),
@@ -102,7 +99,6 @@ class _WhiteboardBlockComponentWidgetState
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
-        actionTrailingBuilder: widget.actionTrailingBuilder,
         child: child,
       );
     }

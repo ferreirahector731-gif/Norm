@@ -17,8 +17,6 @@ class AudioBlockComponentBuilder extends BlockComponentBuilder {
       configuration: configuration,
       actionBuilder: (context, state) =>
           actionBuilder(blockComponentContext, state),
-      actionTrailingBuilder: (context, state) =>
-          actionTrailingBuilder(blockComponentContext, state),
     );
   }
 
@@ -33,7 +31,6 @@ class AudioBlockComponentWidget extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
-    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
   });
 
@@ -70,10 +67,10 @@ class _AudioBlockComponentWidgetState
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.03),
+        color: Colors.white.withOpacity(0.03),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.06),
+          color: Colors.white.withOpacity(0.06),
           width: 0.5,
         ),
       ),
@@ -85,7 +82,7 @@ class _AudioBlockComponentWidgetState
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color(0xff7B2CBF).withValues(alpha: 0.2),
+                color: const Color(0xff7B2CBF).withOpacity(0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
@@ -104,7 +101,7 @@ class _AudioBlockComponentWidgetState
                 Text(
                   caption.isNotEmpty ? caption : 'Grabación de audio',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: Colors.white.withOpacity(0.7),
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
@@ -115,7 +112,7 @@ class _AudioBlockComponentWidgetState
                   borderRadius: BorderRadius.circular(2),
                   child: Container(
                     height: 3,
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: Colors.white.withOpacity(0.08),
                     child: FractionallySizedBox(
                       alignment: Alignment.centerLeft,
                       widthFactor: _progress,
@@ -134,7 +131,7 @@ class _AudioBlockComponentWidgetState
                 ? '${duration.toStringAsFixed(1)}s'
                 : '--:--',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.35),
+              color: Colors.white.withOpacity(0.35),
               fontSize: 11,
               fontWeight: FontWeight.w500,
               fontFeatures: const [FontFeature.tabularFigures()],
@@ -145,7 +142,7 @@ class _AudioBlockComponentWidgetState
             Icon(
               Icons.cloud_done_rounded,
               size: 14,
-              color: Colors.greenAccent.withValues(alpha: 0.5),
+              color: Colors.greenAccent.withOpacity(0.5),
             ),
           ],
         ],
@@ -165,7 +162,6 @@ class _AudioBlockComponentWidgetState
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
-        actionTrailingBuilder: widget.actionTrailingBuilder,
         child: child,
       );
     }

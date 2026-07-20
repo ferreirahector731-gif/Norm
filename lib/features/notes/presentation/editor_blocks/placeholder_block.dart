@@ -26,8 +26,6 @@ class PlaceholderBlockComponentBuilder extends BlockComponentBuilder {
       configuration: configuration,
       actionBuilder: (context, state) =>
           actionBuilder(blockComponentContext, state),
-      actionTrailingBuilder: (context, state) =>
-          actionTrailingBuilder(blockComponentContext, state),
       iconData: iconData,
       label: label,
     );
@@ -44,7 +42,6 @@ class PlaceholderBlockComponentWidget extends BlockComponentStatefulWidget {
     required super.node,
     super.showActions,
     super.actionBuilder,
-    super.actionTrailingBuilder,
     super.configuration = const BlockComponentConfiguration(),
     required this.iconData,
     required this.label,
@@ -78,10 +75,10 @@ class _PlaceholderBlockComponentWidgetState
       height: 160,
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.025),
+        color: Colors.white.withOpacity(0.025),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.06),
+          color: Colors.white.withOpacity(0.06),
           width: 0.5,
           strokeAlign: BorderSide.strokeAlignInside,
         ),
@@ -91,12 +88,12 @@ class _PlaceholderBlockComponentWidgetState
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(widget.iconData,
-                size: 28, color: Colors.white.withValues(alpha: 0.25)),
+                size: 28, color: Colors.white.withOpacity(0.25)),
             const SizedBox(height: 8),
             Text(
               widget.label,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.35),
+                color: Colors.white.withOpacity(0.35),
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
               ),
@@ -106,7 +103,7 @@ class _PlaceholderBlockComponentWidgetState
               Text(
                 caption,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.2),
+                  color: Colors.white.withOpacity(0.2),
                   fontSize: 11,
                 ),
               ),
@@ -129,7 +126,6 @@ class _PlaceholderBlockComponentWidgetState
       child = BlockComponentActionWrapper(
         node: node,
         actionBuilder: widget.actionBuilder!,
-        actionTrailingBuilder: widget.actionTrailingBuilder,
         child: child,
       );
     }

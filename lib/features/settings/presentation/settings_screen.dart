@@ -122,10 +122,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                     width: MediaQuery.of(context).size.width * 0.85,
                     constraints: const BoxConstraints(maxWidth: 420),
                     decoration: BoxDecoration(
-                      color: scheme.surface.withValues(alpha: 0.88),
+                      color: scheme.surface.withOpacity(0.88),
                       border: Border(
                         right: BorderSide(
-                          color: scheme.outlineVariant.withValues(alpha: 0.2),
+                          color: scheme.outlineVariant.withOpacity(0.2),
                           width: 0.5,
                         ),
                       ),
@@ -178,7 +178,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: scheme.outlineVariant.withValues(alpha: 0.2),
+            color: scheme.outlineVariant.withOpacity(0.2),
             width: 0.5,
           ),
         ),
@@ -251,7 +251,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     color: Theme.of(context)
                         .colorScheme
                         .primary
-                        .withValues(alpha: 0.35),
+                        .withOpacity(0.35),
                     blurRadius: 10,
                     spreadRadius: 1,
                   ),
@@ -305,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.3),
+          color: scheme.outlineVariant.withOpacity(0.3),
           width: 0.5,
         ),
       ),
@@ -358,10 +358,10 @@ class _SettingsScreenState extends State<SettingsScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow.withValues(alpha: 0.5),
+        color: scheme.surfaceContainerLow.withOpacity(0.5),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.25),
+          color: scheme.outlineVariant.withOpacity(0.25),
           width: 0.5,
         ),
       ),
@@ -396,9 +396,9 @@ class _SettingsScreenState extends State<SettingsScreen>
             onChanged: (_) => _saveConfig(),
             decoration: InputDecoration(
               hintText: 'sk-...',
-              hintStyle: TextStyle(color: scheme.onSurfaceVariant.withValues(alpha: 0.4)),
+              hintStyle: TextStyle(color: scheme.onSurfaceVariant.withOpacity(0.4)),
               filled: true,
-              fillColor: scheme.surfaceContainerHigh.withValues(alpha: 0.5),
+              fillColor: scheme.surfaceContainerHigh.withOpacity(0.5),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide.none,
@@ -449,7 +449,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                             color: scheme.primary,
                             boxShadow: [
                               BoxShadow(
-                                color: scheme.primary.withValues(alpha: 0.5),
+                                color: scheme.primary.withOpacity(0.5),
                                 blurRadius: 6,
                               ),
                             ],
@@ -481,8 +481,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                   borderRadius: BorderRadius.circular(12),
                   gradient: LinearGradient(
                     colors: [
-                      scheme.primary.withValues(alpha: 0.9),
-                      scheme.primary.withValues(alpha: 0.7),
+                      scheme.primary.withOpacity(0.9),
+                      scheme.primary.withOpacity(0.7),
                     ],
                   ),
                 ),
@@ -531,10 +531,10 @@ class _SettingsScreenState extends State<SettingsScreen>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerLow.withValues(alpha: 0.3),
+            color: scheme.surfaceContainerLow.withOpacity(0.3),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: scheme.outlineVariant.withValues(alpha: 0.1),
+              color: scheme.outlineVariant.withOpacity(0.1),
               width: 0.5,
             ),
           ),
@@ -547,7 +547,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 'v$_appVersion+$_buildNumber',
                 style: TextStyle(
                   fontSize: 12,
-                  color: scheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  color: scheme.onSurfaceVariant.withOpacity(0.5),
                   letterSpacing: 0.3,
                 ),
               ),
@@ -559,7 +559,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           'Norm — Escritura con IA local',
           style: TextStyle(
             fontSize: 10,
-            color: scheme.onSurfaceVariant.withValues(alpha: 0.3),
+            color: scheme.onSurfaceVariant.withOpacity(0.3),
           ),
         ),
       ],
@@ -601,10 +601,10 @@ class _SettingsScreenState extends State<SettingsScreen>
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: scheme.surfaceContainerLow.withValues(alpha: 0.5),
+            color: scheme.surfaceContainerLow.withOpacity(0.5),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: scheme.outlineVariant.withValues(alpha: 0.2),
+              color: scheme.outlineVariant.withOpacity(0.2),
               width: 0.5,
             ),
           ),

@@ -30,7 +30,7 @@ class NoteCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: scheme.outlineVariant.withValues(alpha: 0.2),
+              color: scheme.outlineVariant.withOpacity(0.2),
             ),
           ),
           child: Column(
@@ -77,7 +77,7 @@ class NoteCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: scheme.tertiaryContainer.withValues(alpha: 0.1),
+        color: scheme.tertiaryContainer.withOpacity(0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -132,7 +132,7 @@ class NoteCardWithImage extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: scheme.outlineVariant.withValues(alpha: 0.2),
+              color: scheme.outlineVariant.withOpacity(0.2),
             ),
           ),
           child: Column(
@@ -143,7 +143,7 @@ class NoteCardWithImage extends StatelessWidget {
                 child: Container(
                   height: 128,
                   width: double.infinity,
-                  color: scheme.primaryContainer.withValues(alpha: 0.15),
+                  color: scheme.primaryContainer.withOpacity(0.15),
                   child: Center(
                     child: Icon(
                       Icons.image_outlined,
@@ -199,7 +199,7 @@ class NoteCardWithImage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: scheme.secondaryContainer.withValues(alpha: 0.3),
+        color: scheme.secondaryContainer.withOpacity(0.3),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

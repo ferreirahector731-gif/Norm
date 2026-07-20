@@ -176,10 +176,10 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
               child: Container(
                 padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
-                  color: scheme.surfaceContainerLow.withValues(alpha: 0.3),
+                  color: scheme.surfaceContainerLow.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: scheme.outlineVariant.withValues(alpha: 0.12),
+                    color: scheme.outlineVariant.withOpacity(0.12),
                     width: 0.5,
                   ),
                 ),
@@ -189,13 +189,13 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: scheme.primary.withValues(alpha: 0.08),
+                        color: scheme.primary.withOpacity(0.08),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.edit_note_rounded,
                         size: 36,
-                        color: scheme.primary.withValues(alpha: 0.6),
+                        color: scheme.primary.withOpacity(0.6),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -212,7 +212,7 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
                       style: TextStyle(
                         fontSize: 13,
                         height: 1.5,
-                        color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                        color: scheme.onSurfaceVariant.withOpacity(0.6),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -270,7 +270,7 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
           border: InputBorder.none,
           hintText: 'Título de la nota...',
           hintStyle: TextStyle(
-            color: scheme.onSurfaceVariant.withValues(alpha: 0.25),
+            color: scheme.onSurfaceVariant.withOpacity(0.25),
           ),
         ),
         onChanged: (_) => _scheduleSave(),
@@ -288,9 +288,9 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
+              color: Colors.white.withOpacity(0.04),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.08),
+                color: Colors.white.withOpacity(0.08),
                 width: 0.5,
               ),
               borderRadius: BorderRadius.circular(14),
@@ -352,7 +352,7 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
       width: 1,
       height: 24,
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      color: Colors.white.withValues(alpha: 0.08),
+      color: Colors.white.withOpacity(0.08),
     );
   }
 
@@ -367,7 +367,7 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
       message: tooltip,
       child: Material(
         color: isActive
-            ? scheme.primary.withValues(alpha: 0.2)
+            ? scheme.primary.withOpacity(0.2)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
         child: InkWell(
@@ -380,7 +380,7 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
               size: 18,
               color: isActive
                   ? scheme.primary
-                  : scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                  : scheme.onSurfaceVariant.withOpacity(0.6),
             ),
           ),
         ),

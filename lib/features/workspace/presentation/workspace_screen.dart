@@ -324,7 +324,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
       decoration: BoxDecoration(
         color: scheme.surface,
         border: Border(
-          bottom: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.2)),
+          bottom: BorderSide(color: scheme.outlineVariant.withOpacity(0.2)),
         ),
       ),
       child: SafeArea(
@@ -478,7 +478,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
               fontSize: 11,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.2,
-              color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+              color: scheme.onSurfaceVariant.withOpacity(0.6),
             ),
           ),
         ),
@@ -491,7 +491,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
               final isSelected = note.id == _activeNote?.id;
               return Material(
                 color: isSelected
-                    ? scheme.primaryContainer.withValues(alpha: 0.15)
+                    ? scheme.primaryContainer.withOpacity(0.15)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(8),
                 child: ListTile(
@@ -499,7 +499,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
                   leading: Icon(
                     _isWhiteboard(note) ? Icons.draw_outlined : Icons.description_outlined,
                     size: 18,
-                    color: isSelected ? scheme.primary : scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    color: isSelected ? scheme.primary : scheme.onSurfaceVariant.withOpacity(0.6),
                   ),
                   title: Text(
                     note.title,
@@ -536,10 +536,10 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
           child: Container(
             height: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.04),
+              color: Colors.white.withOpacity(0.04),
               border: Border(
                 right: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.06),
+                  color: Colors.white.withOpacity(0.06),
                   width: 0.5,
                 ),
               ),
@@ -661,7 +661,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
       decoration: BoxDecoration(
         border: Border(
           right: BorderSide(
-            color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.15),
+            color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.15),
             width: 0.5,
           ),
         ),
@@ -670,7 +670,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
           child: Container(
-            color: Colors.white.withValues(alpha: 0.02),
+            color: Colors.white.withOpacity(0.02),
             child: NoteBentoExplorer(
               notes: _notes,
               activeNote: _activeNote,
@@ -692,7 +692,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
       decoration: BoxDecoration(
         border: Border(
           left: BorderSide(
-            color: scheme.outlineVariant.withValues(alpha: 0.1),
+            color: scheme.outlineVariant.withOpacity(0.1),
             width: 0.5,
           ),
         ),
@@ -723,7 +723,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
       decoration: BoxDecoration(
         color: scheme.surface,
         border: Border(
-          bottom: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.2)),
+          bottom: BorderSide(color: scheme.outlineVariant.withOpacity(0.2)),
         ),
       ),
       child: Row(

@@ -154,7 +154,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: scheme.surface.withValues(alpha: 0.95),
+        color: scheme.surface.withOpacity(0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -180,7 +180,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
             color: Theme.of(context)
                 .colorScheme
                 .outlineVariant
-                .withValues(alpha: 0.5),
+                .withOpacity(0.5),
             borderRadius: BorderRadius.circular(2),
           ),
         ),
@@ -223,10 +223,10 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHigh.withValues(alpha: 0.5),
+        color: scheme.surfaceContainerHigh.withOpacity(0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: scheme.outlineVariant.withValues(alpha: 0.3),
+          color: scheme.outlineVariant.withOpacity(0.3),
           width: 0.5,
         ),
       ),
@@ -287,13 +287,13 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: isReasoning
-              ? scheme.tertiary.withValues(alpha: 0.15)
-              : scheme.surfaceContainerHigh.withValues(alpha: 0.5),
+              ? scheme.tertiary.withOpacity(0.15)
+              : scheme.surfaceContainerHigh.withOpacity(0.5),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isReasoning
-                ? scheme.tertiary.withValues(alpha: 0.4)
-                : scheme.outlineVariant.withValues(alpha: 0.3),
+                ? scheme.tertiary.withOpacity(0.4)
+                : scheme.outlineVariant.withOpacity(0.3),
             width: 0.5,
           ),
         ),
@@ -333,9 +333,9 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: scheme.primary.withValues(alpha: 0.08),
+              color: scheme.primary.withOpacity(0.08),
               border: Border.all(
-                color: scheme.primary.withValues(alpha: 0.15),
+                color: scheme.primary.withOpacity(0.15),
                 width: 0.5,
               ),
               borderRadius: BorderRadius.circular(12),
@@ -343,7 +343,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
             child: Row(
               children: [
                 Icon(Icons.info_outline,
-                    size: 16, color: scheme.primary.withValues(alpha: 0.7)),
+                    size: 16, color: scheme.primary.withOpacity(0.7)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -352,14 +352,14 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
                     style: TextStyle(
                       fontSize: 11,
                       height: 1.4,
-                      color: scheme.onSurfaceVariant.withValues(alpha: 0.7),
+                      color: scheme.onSurfaceVariant.withOpacity(0.7),
                     ),
                   ),
                 ),
                 GestureDetector(
                   onTap: () => setState(() => _dismissedBanner = true),
                   child: Icon(Icons.close,
-                      size: 16, color: scheme.outline.withValues(alpha: 0.5)),
+                      size: 16, color: scheme.outline.withOpacity(0.5)),
                 ),
               ],
             ),
@@ -385,7 +385,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.auto_awesome,
-                  size: 40, color: scheme.primary.withValues(alpha: 0.3)),
+                  size: 40, color: scheme.primary.withOpacity(0.3)),
               const SizedBox(height: 16),
               Text(
                 'Hola. ¿En qué puedo ayudarte?',
@@ -423,8 +423,8 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: isUser
-                        ? scheme.primary.withValues(alpha: 0.12)
-                        : scheme.surfaceContainerLow.withValues(alpha: 0.5),
+                        ? scheme.primary.withOpacity(0.12)
+                        : scheme.surfaceContainerLow.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(16).copyWith(
                       bottomLeft:
                           isUser ? const Radius.circular(16) : Radius.zero,
@@ -433,8 +433,8 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
                     ),
                     border: Border.all(
                       color: isUser
-                          ? scheme.primary.withValues(alpha: 0.15)
-                          : scheme.outlineVariant.withValues(alpha: 0.1),
+                          ? scheme.primary.withOpacity(0.15)
+                          : scheme.outlineVariant.withOpacity(0.1),
                       width: 0.5,
                     ),
                   ),
@@ -455,7 +455,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
                         _formatTime(msg.createdAt),
                         style: TextStyle(
                           fontSize: 10,
-                          color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
+                          color: scheme.onSurfaceVariant.withOpacity(0.4),
                         ),
                       ),
                     ],
@@ -478,8 +478,8 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
       height: 28,
       decoration: BoxDecoration(
         color: isUser
-            ? scheme.primary.withValues(alpha: 0.15)
-            : scheme.secondaryContainer.withValues(alpha: 0.3),
+            ? scheme.primary.withOpacity(0.15)
+            : scheme.secondaryContainer.withOpacity(0.3),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Icon(
@@ -487,7 +487,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
         size: 14,
         color: isUser
             ? scheme.primary
-            : scheme.onSecondaryContainer.withValues(alpha: 0.6),
+            : scheme.onSecondaryContainer.withOpacity(0.6),
       ),
     );
   }
@@ -508,9 +508,9 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       decoration: BoxDecoration(
-        color: scheme.surface.withValues(alpha: 0.9),
+        color: scheme.surface.withOpacity(0.9),
         border: Border(
-          top: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.2)),
+          top: BorderSide(color: scheme.outlineVariant.withOpacity(0.2)),
         ),
       ),
       child: Row(
@@ -524,8 +524,8 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: _isSending
-                      ? scheme.primary.withValues(alpha: 0.3)
-                      : scheme.outlineVariant.withValues(alpha: 0.2),
+                      ? scheme.primary.withOpacity(0.3)
+                      : scheme.outlineVariant.withOpacity(0.2),
                 ),
               ),
               child: Row(
@@ -546,7 +546,7 @@ class _AiAssistantPanelState extends State<AiAssistantPanel> {
                             : 'Pregúntale a la IA...',
                         hintStyle: TextStyle(
                           color: scheme.onSurfaceVariant
-                              .withValues(alpha: 0.5),
+                              .withOpacity(0.5),
                           fontSize: 15,
                         ),
                         border: InputBorder.none,
