@@ -1,66 +1,152 @@
-name: Build Windows
+name: Build All Platforms
 
 on:
   push:
     tags:
       - 'v*'
 
+env:
+  FLUTTER_VERSION: 3.x
+
 jobs:
   build-windows:
-    name: Build Windows Release
+    name: Windows
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: 3.x
+          flutter-version: ${{ env.FLUTTER_VERSION }}
 
-      - name: Copy logo
-        shell: pwsh
-        run: |
-          $src = "C:\Src\logo\logo.png"
-          if (Test-Path $src) {
-            Copy-Item -Path $src -Destination "assets\icon\logo.png" -Force
-            Copy-Item -Path $src -Destination "assets\splash\splash_logo.png" -Force
-          }
-
-      - name: Generate icons and splash
+      - name: Generate assets
         run: |
           flutter pub get
           flutter pub run flutter_launcher_icons
           flutter pub run flutter_native_splash:create
 
-      - name: Build Windows
+      - name: Build
         run: flutter build windows --release
 
-      - name: Package artifacts
+      - name: Package
         shell: pwsh
         run: |
           Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath Norm_Windows_${{ github.ref_name }}.zip
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: Norm_Windows_${{ github.ref_name }}.zip
+
+  build-android:
+    name: Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - name: Generate assets
+        run: |
+          flutter pub get
+          flutter pub run flutter_launcher_icons
+          flutter pub run flutter_native_splash:create
+
+      - name: Build APKs (split-per-abi)
+        run: flutter build apk --release --split-per-abi
+
+      - name: Package
+        run: |
+          mkdir -p artifacts
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk artifacts/Norm_${{ github.ref_name }}_arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk artifacts/Norm_${{ github.ref_name }}_armeabi-v7a.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk artifacts/Norm_${{ github.ref_name }}_x86_64.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: artifacts/
+
+  build-linux:
+    name: Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+
+      - name: Install Linux deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+
+      - name: Generate assets
+        run: |
+          flutter pub get
+          flutter pub run flutter_launcher_icons
+          flutter pub run flutter_native_splash:create
+
+      - name: Build
+        run: flutter build linux --release
+
+      - name: Package
+        run: |
+          cd build/linux/x64/release/bundle
+          tar czf ../../../../../Norm_Linux_${{ github.ref_name }}.tar.gz *
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: Norm_Linux_${{ github.ref_name }}.tar.gz
+
+  release:
+    name: Create Release
+    needs: [build-windows, build-android, build-linux]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f
+
+      - uses: softprops/action-gh-release@v2
         with:
           name: Norm ${{ github.ref_name }}
           body: |
             ## Norm ${{ github.ref_name }}
 
-            ### Descarga
-            - **Windows:** `Norm_Windows_${{ github.ref_name }}.zip`
+            ### Descargas
 
-            ### Instrucciones
-            1. Descarga el ZIP correspondiente a tu plataforma
-            2. Extrae el contenido en una carpeta
-            3. Ejecuta `nota_ia_app.exe`
+            **Windows**
+            - `Norm_Windows_${{ github.ref_name }}.zip` — Ejecutable portátil
 
-            > Para Windows, también puedes usar el instalador Inno Setup
-            > incluido en `installer/setup.iss`
+            **Android**
+            - `Norm_${{ github.ref_name }}_arm64-v8a.apk` — Dispositivos modernos (recomendado)
+            - `Norm_${{ github.ref_name }}_armeabi-v7a.apk` — Dispositivos antiguos
+            - `Norm_${{ github.ref_name }}_x86_64.apk` — Emuladores
+
+            **Linux**
+            - `Norm_Linux_${{ github.ref_name }}.tar.gz` — AppImage / bundle portable
+
+            ### Notas
+            - Las APKs **no están firmadas**; para distribución en Play Store se requiere
+              firma adicional con `jarsigner` o Android Studio.
+            - Para Windows, también puedes generar un instalador `.exe` con Inno Setup
+              usando `installer/setup.iss`.
           draft: false
           prerelease: false
           files: |
-            Norm_Windows_${{ github.ref_name }}.zip
+            artifacts/*/*
