@@ -1,6 +1,5 @@
 plugins {
     id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -14,27 +13,50 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
     defaultConfig {
         applicationId = "com.example.nota_ia_app"
         minSdk = 21
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
+    androidResources {
+        noCompress = listOf("tflite")
+    }
+
+    packagingOptions {
+        resources {
+            excludes += "META-INF/*"
         }
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-}
-
 flutter {
     source = "../.."
+}
+
+tasks.register("patchIsarManifest") {
+    doLast {
+        val manifestFile = file("build/intermediates/merged_manifests/release/AndroidManifest.xml")
+        if (manifestFile.exists()) {
+            val content = manifestFile.readText()
+            val patched = content.replace("""package="dev.isar.isar_flutter_libs"""", "")
+            manifestFile.writeText(patched)
+            println("Patched package attribute in merged manifest")
+        }
+    }
+}
+tasks.named("processReleaseManifest") {
+    dependsOn("patchIsarManifest")
 }

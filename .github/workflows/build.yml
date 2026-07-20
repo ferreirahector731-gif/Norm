@@ -136,10 +136,16 @@ jobs:
       - name: Build
         run: flutter build macos --release
 
-      - name: Package
+      - name: Package macOS
+        working-directory: build/macos/Build/Products/Release
         run: |
-          cd build/macos/Build/Products/Release
-          zip -r ../../../../../Norm_macOS_${{ github.ref_name }}.zip Norm.app
+          ls -la
+          APP_NAME=$(ls *.app | head -1)
+          if [ -z "$APP_NAME" ]; then
+            echo "No .app found"
+            exit 1
+          fi
+          zip -r "../../../../Norm_macOS_${{ github.ref_name }}.zip" "$APP_NAME"
 
       - uses: actions/upload-artifact@v4
         with:

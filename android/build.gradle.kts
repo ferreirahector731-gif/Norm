@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.7.3")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.20")
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -5,30 +16,14 @@ allprojects {
     }
 }
 
-val newBuildDir: Directory =
-    rootProject.layout.buildDirectory
-        .dir("../../build")
-        .get()
-rootProject.layout.buildDirectory.value(newBuildDir)
-
+rootProject.buildDir = "../build"
 subprojects {
-    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
-    project.layout.buildDirectory.value(newSubprojectBuildDir)
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
     project.evaluationDependsOn(":app")
 }
 
-// Forzar namespace en dependencias nativas (isar_flutter_libs, etc.) que no declaren namespace
-subprojects {
-    plugins.withId("com.android.library") {
-        val android = extensions.getByType(com.android.build.gradle.LibraryExtension::class.java)
-        if (android.namespace == null) {
-            android.namespace = "com.example.${project.name.replace("-", "_")}"
-        }
-    }
-}
-
-tasks.register<Delete>("clean") {
-    delete(rootProject.layout.buildDirectory)
+tasks.register("clean", Delete::class) {
+    delete(rootProject.buildDir)
 }
