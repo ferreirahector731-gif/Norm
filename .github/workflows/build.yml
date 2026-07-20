@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   build-windows:
     name: Windows
@@ -168,6 +172,8 @@ jobs:
         run: find artifacts -type f
 
       - uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: Norm ${{ github.ref_name }}
           body: |
