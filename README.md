@@ -38,7 +38,20 @@
 
 ## Changelog
 
-### v1.2.0 (actual)
+### v1.4.0 (actual)
+- IA: integración con Google Gemini (modelo ligero flash) y caché de respuestas.
+- Web: página profesional con paleta corporativa y descargas dinámicas.
+- Tablas: widget de tabla editable con inserción de filas/columnas.
+- Importación: pantalla base para migración desde Notion.
+- Banner Beta con persistencia en SharedPreferences.
+- Correcciones en compilación Android (plugin isar_flutter_libs) y macOS (empaquetado).
+
+### v1.3.0
+- Correcciones Android (lStar, Kotlin/AGP) y macOS (zip).
+- GitHub Pages con despliegue automático.
+- Página web profesional docs/index.html.
+
+### v1.2.0
 - UI: botón de login centrado y con tamaño controlado.
 - Logo: iconos regenerados para Windows y Linux.
 - Banner de bienvenida Beta.
