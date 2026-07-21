@@ -7,9 +7,9 @@ pluginManagement {
         flutterSdkPath
     }
 
-    settings.ext.set("flutterSdkPath", flutterSdkPath)
+    settings.extra["flutterSdkPath"] = flutterSdkPath
 
-    includeBuild("${settings.ext.get("flutterSdkPath")}/packages/flutter_tools/gradle")
+    includeBuild("${settings.extra["flutterSdkPath"]}/packages/flutter_tools/gradle")
 
     repositories {
         google()
