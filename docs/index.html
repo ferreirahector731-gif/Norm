@@ -9,23 +9,68 @@
         h1 { font-size: 4rem; margin-bottom: 0; background: linear-gradient(135deg, #a855f7, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .badge { display: inline-block; background: #a855f7; color: #fff; padding: 0.25rem 1rem; border-radius: 20px; font-size: 0.8rem; margin-top: 0.5rem; }
         .downloads { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0; }
-        .btn { background: #1e1e1e; color: #fff; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; border: 1px solid #333; transition: 0.3s; }
+        .btn { background: #1e1e1e; color: #fff; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; border: 1px solid #333; transition: 0.3s; min-width: 120px; display: inline-block; }
         .btn:hover { border-color: #a855f7; background: #2a2a2a; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .footer { margin-top: 3rem; font-size: 0.8rem; color: #666; }
+        .fallback { margin-top: 1rem; font-size: 0.85rem; color: #888; }
         a { color: #a855f7; text-decoration: none; }
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #555; border-top-color: #a855f7; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <h1>Norm</h1>
     <p style="font-size: 1.2rem; color: #aaa;">Tus notas con inteligencia local</p>
-    <span class="badge">Beta</span>
-    <div class="downloads">
-        <a href="#" class="btn">Windows</a>
-        <a href="#" class="btn">Linux</a>
-        <a href="#" class="btn">Android</a>
-        <a href="#" class="btn">macOS</a>
+    <span class="badge" id="version-badge">Beta</span>
+    <div class="downloads" id="downloads">
+        <a href="#" class="btn" id="dl-windows"><span class="spinner"></span> Windows</a>
+        <a href="#" class="btn" id="dl-linux"><span class="spinner"></span> Linux</a>
+        <a href="#" class="btn" id="dl-android"><span class="spinner"></span> Android</a>
+        <a href="#" class="btn" id="dl-macos"><span class="spinner"></span> macOS</a>
+    </div>
+    <div id="fallback" class="fallback" style="display:none;">
+        Descargas disponibles en <a href="https://github.com/ferreirahector731-gif/Norm/releases" target="_blank">GitHub Releases</a>
     </div>
     <p><a href="https://github.com/ferreirahector731-gif/Norm" target="_blank">Repositorio</a> · <a href="https://github.com/ferreirahector731-gif/Norm/releases" target="_blank">Changelog</a></p>
-    <div class="footer">v1.3.0 · Hecho con ❤️</div>
+    <div class="footer" id="footer">v1.3.0 · Hecho con ❤️</div>
+
+    <script>
+    (async () => {
+        const API = 'https://api.github.com/repos/ferreirahector731-gif/Norm/releases/latest';
+        const BTN_IDS = { Windows: 'dl-windows', Linux: 'dl-linux', 'arm64-v8a': 'dl-android', 'x86_64': 'dl-android', macOS: 'dl-macos' };
+
+        try {
+            const r = await fetch(API, { headers: { Accept: 'application/vnd.github.v3+json' } });
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const data = await r.json();
+            const tag = data.tag_name || 'v1.3.0';
+            document.getElementById('version-badge').textContent = tag;
+            document.getElementById('footer').innerHTML = tag + ' · Hecho con ❤️';
+
+            let found = 0;
+            for (const asset of data.assets || []) {
+                const name = asset.name || '';
+                const url = asset.browser_download_url;
+                for (const [key, id] of Object.entries(BTN_IDS)) {
+                    if (name.includes(key)) {
+                        const btn = document.getElementById(id);
+                        if (btn && btn.href === '#') {
+                            btn.href = url;
+                            btn.innerHTML = name.includes('arm64') ? '⬇ Android (ARM64)' : name.includes('x86_64') ? '⬇ Android (x86)' : '⬇ ' + key;
+                            found++;
+                        }
+                    }
+                }
+            }
+
+            if (found === 0) throw new Error('No assets matched');
+
+        } catch (e) {
+            document.getElementById('fallback').style.display = 'block';
+            document.querySelectorAll('.btn').forEach(b => { b.innerHTML = b.id.replace('dl-', ''); b.href = 'https://github.com/ferreirahector731-gif/Norm/releases/latest'; });
+        }
+    })();
+    </script>
 </body>
 </html>
