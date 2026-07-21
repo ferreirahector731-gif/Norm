@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum AIProvider { localEmbedded, ollamaLocal, externalAPI }
 
+enum AIReasoningMode { quick, reasoningX2 }
+
 class AIConfig {
   final AIProvider provider;
   final String? externalApiKey;
