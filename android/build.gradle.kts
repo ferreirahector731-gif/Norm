@@ -33,7 +33,10 @@ subprojects {
     plugins.withId("com.android.library") {
         extensions.configure<com.android.build.gradle.LibraryExtension> {
             namespace = "dev.isar.isar_flutter_libs"
-            compileSdk = 36
         }
+        extensions.findByType(com.android.build.api.variant.AndroidComponentsExtension::class.java)
+            ?.finalizeDsl { extension ->
+                extension.compileSdk = 36
+            }
     }
 }
