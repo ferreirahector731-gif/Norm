@@ -1,76 +1,244 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Norm</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Norm - Tus notas con inteligencia local</title>
     <style>
-        body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; background: #0d0d0d; color: #fff; text-align: center; }
-        h1 { font-size: 4rem; margin-bottom: 0; background: linear-gradient(135deg, #a855f7, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .badge { display: inline-block; background: #a855f7; color: #fff; padding: 0.25rem 1rem; border-radius: 20px; font-size: 0.8rem; margin-top: 0.5rem; }
-        .downloads { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin: 2rem 0; }
-        .btn { background: #1e1e1e; color: #fff; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; border: 1px solid #333; transition: 0.3s; min-width: 120px; display: inline-block; }
-        .btn:hover { border-color: #a855f7; background: #2a2a2a; }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .footer { margin-top: 3rem; font-size: 0.8rem; color: #666; }
-        .fallback { margin-top: 1rem; font-size: 0.85rem; color: #888; }
-        a { color: #a855f7; text-decoration: none; }
-        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #555; border-top-color: #a855f7; border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0f;
+            color: #e4e4e7;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+        .container {
+            max-width: 720px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.25rem;
+        }
+        .tagline {
+            font-size: 1.2rem;
+            color: #a1a1aa;
+            margin-bottom: 1.5rem;
+        }
+        .badge {
+            display: inline-block;
+            background: #a855f7;
+            color: #fff;
+            padding: 0.2rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+        .downloads {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .btn {
+            background: #1e1e2a;
+            color: #e4e4e7;
+            padding: 0.75rem 1.8rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            border: 1px solid #2a2a3a;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 120px;
+            justify-content: center;
+        }
+        .btn:hover {
+            border-color: #a855f7;
+            background: #2a2a3a;
+            transform: translateY(-2px);
+        }
+        .btn .icon { font-size: 1.2rem; }
+        .btn.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(0.5);
+        }
+        .changelog {
+            margin: 2.5rem 0;
+            text-align: left;
+            background: #14141e;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #1e1e2a;
+        }
+        .changelog h2 {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8888aa;
+            margin-bottom: 1rem;
+        }
+        .changelog ul {
+            list-style: none;
+            padding: 0;
+        }
+        .changelog li {
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #1a1a24;
+            font-size: 0.9rem;
+            color: #c4c4cc;
+        }
+        .changelog li:last-child { border-bottom: none; }
+        .changelog .version {
+            color: #a855f7;
+            font-weight: 600;
+            margin-right: 0.75rem;
+        }
+        .footer {
+            margin-top: 3rem;
+            font-size: 0.8rem;
+            color: #555577;
+        }
+        .footer a {
+            color: #8888aa;
+            text-decoration: none;
+        }
+        .footer a:hover { color: #a855f7; }
+        .loading {
+            color: #8888aa;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 480px) {
+            .logo { font-size: 3rem; }
+            .btn { min-width: 100%; }
+        }
     </style>
 </head>
 <body>
-    <h1>Norm</h1>
-    <p style="font-size: 1.2rem; color: #aaa;">Tus notas con inteligencia local</p>
-    <span class="badge" id="version-badge">Beta</span>
-    <div class="downloads" id="downloads">
-        <a href="#" class="btn" id="dl-windows"><span class="spinner"></span> Windows</a>
-        <a href="#" class="btn" id="dl-linux"><span class="spinner"></span> Linux</a>
-        <a href="#" class="btn" id="dl-android"><span class="spinner"></span> Android</a>
-        <a href="#" class="btn" id="dl-macos"><span class="spinner"></span> macOS</a>
+    <div class="container">
+        <div class="logo">Norm</div>
+        <p class="tagline">Tus notas con inteligencia local</p>
+        <span class="badge">Beta</span>
+
+        <div class="downloads" id="downloads">
+            <span class="loading">Cargando descargas...</span>
+        </div>
+
+        <div class="changelog" id="changelog">
+            <h2>📋 Novedades</h2>
+            <div id="changelog-content">
+                <span class="loading">Cargando changelog...</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="https://github.com/ferreirahector731-gif/Norm" target="_blank">Repositorio</a>
+            &middot;
+            <a href="https://github.com/ferreirahector731-gif/Norm/releases" target="_blank">Todos los releases</a>
+            <br>
+            v1.3.0 &middot; Hecho con ❤️
+        </div>
     </div>
-    <div id="fallback" class="fallback" style="display:none;">
-        Descargas disponibles en <a href="https://github.com/ferreirahector731-gif/Norm/releases" target="_blank">GitHub Releases</a>
-    </div>
-    <p><a href="https://github.com/ferreirahector731-gif/Norm" target="_blank">Repositorio</a> · <a href="https://github.com/ferreirahector731-gif/Norm/releases" target="_blank">Changelog</a></p>
-    <div class="footer" id="footer">v1.3.0 · Hecho con ❤️</div>
 
     <script>
-    (async () => {
-        const API = 'https://api.github.com/repos/ferreirahector731-gif/Norm/releases/latest';
-        const BTN_IDS = { Windows: 'dl-windows', Linux: 'dl-linux', 'arm64-v8a': 'dl-android', 'x86_64': 'dl-android', macOS: 'dl-macos' };
+        const REPO = 'ferreirahector731-gif/Norm';
 
-        try {
-            const r = await fetch(API, { headers: { Accept: 'application/vnd.github.v3+json' } });
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            const data = await r.json();
-            const tag = data.tag_name || 'v1.3.0';
-            document.getElementById('version-badge').textContent = tag;
-            document.getElementById('footer').innerHTML = tag + ' · Hecho con ❤️';
+        async function fetchReleases() {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${REPO}/releases`);
+                if (!res.ok) throw new Error('API error');
+                const releases = await res.json();
+                return releases;
+            } catch (e) {
+                console.error(e);
+                return null;
+            }
+        }
 
-            let found = 0;
-            for (const asset of data.assets || []) {
-                const name = asset.name || '';
-                const url = asset.browser_download_url;
-                for (const [key, id] of Object.entries(BTN_IDS)) {
-                    if (name.includes(key)) {
-                        const btn = document.getElementById(id);
-                        if (btn && btn.href === '#') {
-                            btn.href = url;
-                            btn.innerHTML = name.includes('arm64') ? '⬇ Android (ARM64)' : name.includes('x86_64') ? '⬇ Android (x86)' : '⬇ ' + key;
-                            found++;
-                        }
-                    }
-                }
+        function getAssetUrl(release, pattern) {
+            if (!release || !release.assets) return null;
+            const asset = release.assets.find(a => a.name.includes(pattern));
+            return asset ? asset.browser_download_url : null;
+        }
+
+        function renderDownloads(releases) {
+            const container = document.getElementById('downloads');
+            if (!releases || releases.length === 0) {
+                container.innerHTML = `<span class="loading">No se encontraron releases</span>`;
+                return;
             }
 
-            if (found === 0) throw new Error('No assets matched');
+            // Tomar el primer release (más reciente)
+            const latest = releases[0];
+            const tag = latest.tag_name;
 
-        } catch (e) {
-            document.getElementById('fallback').style.display = 'block';
-            document.querySelectorAll('.btn').forEach(b => { b.innerHTML = b.id.replace('dl-', ''); b.href = 'https://github.com/ferreirahector731-gif/Norm/releases/latest'; });
+            const platforms = [
+                { key: 'Windows', pattern: 'Windows', icon: '🪟' },
+                { key: 'Linux', pattern: 'Linux', icon: '🐧' },
+                { key: 'Android', pattern: 'apk', icon: '📱' },
+                { key: 'macOS', pattern: 'macOS', icon: '🍎' }
+            ];
+
+            let html = '';
+            for (const p of platforms) {
+                const url = getAssetUrl(latest, p.pattern);
+                if (url) {
+                    html += `<a href="${url}" class="btn"><span class="icon">${p.icon}</span> ${p.key}</a>`;
+                } else {
+                    html += `<span class="btn disabled"><span class="icon">${p.icon}</span> ${p.key}</span>`;
+                }
+            }
+            container.innerHTML = html;
         }
-    })();
+
+        function renderChangelog(releases) {
+            const container = document.getElementById('changelog-content');
+            if (!releases || releases.length === 0) {
+                container.innerHTML = `<span class="loading">No hay changelog disponible</span>`;
+                return;
+            }
+
+            let html = '<ul>';
+            // Mostrar últimos 5 releases
+            for (let i = 0; i < Math.min(5, releases.length); i++) {
+                const r = releases[i];
+                const body = r.body ? r.body.replace(/\n/g, ' — ') : 'Sin descripción';
+                html += `<li><span class="version">${r.tag_name}</span> ${body}</li>`;
+            }
+            html += '</ul>';
+            container.innerHTML = html;
+        }
+
+        async function init() {
+            const releases = await fetchReleases();
+            if (releases) {
+                renderDownloads(releases);
+                renderChangelog(releases);
+            } else {
+                document.getElementById('downloads').innerHTML = '<span class="loading">Error al cargar descargas</span>';
+                document.getElementById('changelog-content').innerHTML = '<span class="loading">Error al cargar changelog</span>';
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>

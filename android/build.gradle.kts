@@ -28,11 +28,12 @@ tasks.register<Delete>("clean") {
     delete(rootProject.buildDir)
 }
 
-// PATCH: Forzar namespace en isar_flutter_libs usando plugins.withId
+// PATCH: Forzar namespace y compileSdk en isar_flutter_libs
 subprojects {
     plugins.withId("com.android.library") {
         extensions.configure<com.android.build.gradle.LibraryExtension> {
             namespace = "dev.isar.isar_flutter_libs"
+            compileSdk = 36
         }
     }
 }
