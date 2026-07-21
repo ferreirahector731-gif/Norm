@@ -3,187 +3,296 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Norm &middot; Tus notas con inteligencia local</title>
+  <title>Norm &middot; Notas con IA local</title>
   <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface-hover: #1c2333;
+      --border: #30363d;
+      --primary: #1a2a4a;
+      --secondary: #4a90d9;
+      --accent: #6c5ce7;
+      --accent-hover: #7d6ff0;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --green: #3fb950;
+      --orange: #d29922;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f5f7fa;
-      color: #1a2a4a;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
     }
-    .container { max-width: 780px; width: 100%; }
+    a { color: var(--secondary); text-decoration: none; }
+    a:hover { color: var(--accent); }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    header .logo { font-weight: 800; font-size: 1.4rem; color: #fff; letter-spacing: -0.5px; }
+    header .logo span { color: var(--secondary); }
+    header nav { display: flex; gap: 1.5rem; }
+    header nav a { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; transition: color .2s; }
+    header nav a:hover { color: #fff; }
+
+    /* Hero */
     .hero {
-      background: linear-gradient(135deg, #1a2a4a 0%, #2a3a5a 100%);
-      color: #fff;
-      border-radius: 20px;
-      padding: 3rem 2rem;
-      text-align: center;
-      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #0d1117 0%, #1a2a4a 50%, #0d1117 100%);
+      text-align: center; padding: 6rem 2rem 5rem; position: relative; overflow: hidden;
     }
-    .hero h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
-    .hero p { font-size: 1.1rem; color: #b0c4de; margin-bottom: 1rem; }
-    .badge {
-      display: inline-block;
-      background: #4a90d9;
-      color: #fff;
-      padding: 0.2rem 1.2rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .hero::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(74,144,217,0.06) 0%, transparent 50%);
     }
-    .section {
-      background: #fff;
-      border-radius: 16px;
-      padding: 1.5rem 2rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    .hero h1 { font-size: 4.5rem; font-weight: 800; letter-spacing: -2px; position: relative; }
+    .hero h1 span { color: var(--secondary); }
+    .hero p { color: var(--text-muted); font-size: 1.2rem; margin-top: 0.5rem; position: relative; }
+    .hero .badge {
+      display: inline-block; background: var(--accent); color: #fff; padding: 0.2rem 1.2rem;
+      border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; margin-top: 1rem; position: relative;
     }
-    .section h2 { font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; color: #4a90d9; margin-bottom: 1rem; }
-    .downloads { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
-    .btn {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: #1a2a4a; color: #fff; padding: 0.85rem 2rem; border-radius: 10px;
-      text-decoration: none; font-weight: 500; font-size: 0.95rem;
-      border: none; cursor: pointer; transition: all 0.2s; min-width: 130px; justify-content: center;
+    .hero .btn-primary {
+      display: inline-block; margin-top: 2rem; padding: 1rem 2.5rem;
+      background: var(--accent); color: #fff; border-radius: 10px; font-weight: 600;
+      font-size: 1.05rem; transition: all .25s; position: relative;
     }
-    .btn:hover { background: #4a90d9; transform: translateY(-2px); }
-    .btn.disabled { opacity: 0.35; pointer-events: none; }
-    .version-item {
-      padding: 0.8rem 0; border-bottom: 1px solid #eef1f5;
-      display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem;
+    .hero .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(108,92,231,0.3); }
+    .hero .version-label { display: block; margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted); position: relative; }
+
+    /* Sections */
+    .section { max-width: 1000px; margin: 0 auto; padding: 4rem 2rem; }
+    .section-title { text-align: center; font-size: 1.8rem; font-weight: 700; margin-bottom: 3rem; }
+    .section-title span { color: var(--secondary); }
+
+    /* Download cards */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.5rem; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.8rem; text-align: center; transition: all .25s;
     }
-    .version-item:last-child { border-bottom: none; }
-    .version-tag { color: #4a90d9; font-weight: 700; font-size: 0.95rem; min-width: 80px; }
-    .version-desc { color: #4a5a7a; font-size: 0.9rem; flex: 1; }
-    .version-links a { color: #4a90d9; font-size: 0.85rem; margin-left: 0.5rem; text-decoration: none; }
-    .version-links a:hover { text-decoration: underline; }
-    .footer { text-align: center; margin: 2rem 0; font-size: 0.85rem; color: #8a9aba; }
-    .footer a { color: #4a90d9; text-decoration: none; }
-    .footer a:hover { text-decoration: underline; }
-    .loading { color: #8a9aba; font-size: 0.9rem; }
-    @media (max-width: 480px) {
-      .hero h1 { font-size: 2.5rem; }
-      .btn { min-width: 100%; }
+    .card:hover { border-color: var(--secondary); transform: translateY(-4px); box-shadow: 0 8px 30px rgba(74,144,217,0.08); }
+    .card .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .card h3 { font-size: 1.1rem; font-weight: 600; }
+    .card .meta { font-size: 0.8rem; color: var(--text-muted); margin: 0.3rem 0 0.8rem; }
+    .card .btn-dl {
+      display: inline-block; padding: 0.5rem 1.5rem; background: var(--accent); color: #fff;
+      border-radius: 8px; font-size: 0.85rem; font-weight: 600; transition: all .2s;
+    }
+    .card .btn-dl:hover { background: var(--accent-hover); }
+    .card .btn-dl.disabled { background: #2d2d3d; color: #666; pointer-events: none; }
+    .card .sha { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.5rem; word-break: break-all; font-family: monospace; }
+
+    /* Features */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
+    .feature { text-align: center; padding: 1.5rem; }
+    .feature .f-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .feature h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.3rem; }
+    .feature p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Changelog */
+    .release { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; }
+    .release .tag { color: var(--secondary); font-weight: 700; font-size: 1rem; }
+    .release .date { color: var(--text-muted); font-size: 0.8rem; margin-left: 0.8rem; }
+    .release .body { margin-top: 0.4rem; font-size: 0.88rem; color: #c9d1d9; }
+    .release .body ul { padding-left: 1.2rem; margin-top: 0.3rem; }
+    .release .body li { margin-bottom: 0.2rem; }
+    .release .dl-link { display: inline-block; margin-top: 0.5rem; font-size: 0.85rem; color: var(--secondary); font-weight: 500; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border); padding: 2.5rem 2rem; text-align: center;
+      color: var(--text-muted); font-size: 0.85rem;
+    }
+    footer .links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    footer .links a { color: var(--text-muted); font-size: 0.85rem; }
+    footer .links a:hover { color: #fff; }
+
+    .loading { color: var(--text-muted); font-size: 0.9rem; }
+
+    /* Mobile */
+    @media (max-width: 640px) {
+      header nav { gap: 0.8rem; }
+      header nav a { font-size: 0.75rem; }
+      .hero h1 { font-size: 2.8rem; }
+      .section { padding: 2.5rem 1rem; }
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 420px) {
+      .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="hero">
-      <h1>Norm</h1>
-      <p>Tus notas con inteligencia local</p>
-      <span class="badge">Beta</span>
-    </div>
 
-    <div class="section">
-      <h2>Descargas</h2>
-      <div class="downloads" id="downloads">
-        <span class="loading">Cargando descargas...</span>
-      </div>
-    </div>
+<header>
+  <div class="logo">Norm<span>.</span></div>
+  <nav>
+    <a href="#hero">Inicio</a>
+    <a href="#downloads">Descargas</a>
+    <a href="#changelog">Novedades</a>
+    <a href="https://github.com/ferreirahector731-gif/Norm" target="_blank">Repositorio</a>
+    <a href="https://github.com/sponsors/ferreirahector731-gif" target="_blank">Donar</a>
+  </nav>
+</header>
 
-    <div class="section" id="releases-section">
-      <h2>Novedades</h2>
-      <div id="releases-content">
-        <span class="loading">Cargando novedades...</span>
-      </div>
-    </div>
+<section class="hero" id="hero">
+  <h1>Norm<span>.</span></h1>
+  <p>Tus notas con inteligencia local</p>
+  <div class="badge">Beta</div>
+  <div><a class="btn-primary" id="hero-dl" href="#">Descargar Última Versión</a></div>
+  <span class="version-label" id="hero-version">v1.3.0</span>
+</section>
 
-    <div class="footer">
-      <a href="https://github.com/ferreirahector731-gif/Norm" target="_blank">Repositorio</a>
-      &nbsp;&middot;&nbsp;
-      <a href="https://github.com/ferreirahector731-gif/Norm/releases" target="_blank">Todos los releases</a>
-      <br>
-      <span id="version-footer">v1.4.0</span> &middot; Hecho con ❤️
+<section class="section" id="downloads">
+  <h2 class="section-title"><span>Descarga</span> Norm</h2>
+  <div class="grid" id="cards-container">
+    <div class="card"><div class="loading">Cargando descargas...</div></div>
+  </div>
+</section>
+
+<section class="section" id="changelog">
+  <h2 class="section-title"><span>Novedades</span></h2>
+  <div id="releases-container"><div class="loading">Cargando novedades...</div></div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Por qué <span>Norm</span></h2>
+  <div class="features-grid">
+    <div class="feature">
+      <div class="f-icon">📦</div>
+      <h3>Local-First</h3>
+      <p>Tus datos se guardan en Isar Database. Sin conexión, sin límites.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">🤖</div>
+      <h3>IA Integrada</h3>
+      <p>Gemini Flash local. Resúmenes, etiquetas y asistencia inteligente.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">🖥️</div>
+      <h3>Multiplataforma</h3>
+      <p>Windows, Linux, Android y macOS. Siempre sincronizado.</p>
+    </div>
+    <div class="feature">
+      <div class="f-icon">🧾</div>
+      <h3>Código Abierto</h3>
+      <p>Licencia Apache 2.0. Transparente, auditado y gratuito.</p>
     </div>
   </div>
+</section>
 
-  <script>
-    const REPO = 'ferreirahector731-gif/Norm';
-    const RELEASES_PER_PAGE = 3;
-    const PLATFORMS = [
-      { key: 'Windows', pattern: 'Windows', icon: '🪟' },
-      { key: 'Linux',   pattern: 'Linux',   icon: '🐧' },
-      { key: 'Android', pattern: 'apk',     icon: '📱' },
-      { key: 'macOS',   pattern: 'macOS',   icon: '🍎' },
-    ];
+<footer>
+  <div class="links">
+    <a href="https://github.com/ferreirahector731-gif/Norm" target="_blank">Repositorio</a>
+    <a href="https://github.com/ferreirahector731-gif/Norm/releases" target="_blank">Changelog</a>
+    <a href="https://github.com/ferreirahector731-gif/Norm/blob/main/LICENSE" target="_blank">Licencia</a>
+    <a href="https://github.com/ferreirahector731-gif/Norm/issues" target="_blank">Contacto</a>
+  </div>
+  <span id="footer-version">v1.3.0</span> &middot; Hecho con ❤️
+</footer>
 
-    async function fetchReleases() {
-      try {
-        const res = await fetch(`https://api.github.com/repos/${REPO}/releases`);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return await res.json();
-      } catch (e) {
-        console.error(e);
-        return null;
-      }
-    }
+<script>
+const REPO = 'ferreirahector731-gif/Norm';
+const PLATFORMS = [
+  { key:'Windows', pattern:'Windows', icon:'🪟', id:'dl-windows' },
+  { key:'Linux',   pattern:'Linux',   icon:'🐧', id:'dl-linux' },
+  { key:'Android', pattern:'apk',     icon:'📱', id:'dl-android' },
+  { key:'macOS',   pattern:'macOS',   icon:'🍎', id:'dl-macos' },
+];
 
-    function getAssetUrl(release, pattern) {
-      if (!release || !release.assets) return null;
-      const a = release.assets.find(a => a.name.includes(pattern));
-      return a ? a.browser_download_url : null;
-    }
+async function fetchReleases() {
+  try {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/releases`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (e) { console.error(e); return null; }
+}
 
-    function renderDownloads(releases) {
-      const el = document.getElementById('downloads');
-      if (!releases || !releases.length) {
-        el.innerHTML = '<span class="loading">No hay releases disponibles</span>';
-        return;
-      }
-      const latest = releases[0];
-      let html = '';
-      for (const p of PLATFORMS) {
-        const url = getAssetUrl(latest, p.pattern);
-        html += url
-          ? `<a href="${url}" class="btn">${p.icon} ${p.key}</a>`
-          : `<span class="btn disabled">${p.icon} ${p.key}</span>`;
-      }
-      el.innerHTML = html;
-    }
+function getAsset(release, pattern) {
+  if (!release || !release.assets) return null;
+  return release.assets.find(a => a.name.includes(pattern)) || null;
+}
 
-    function renderReleases(releases) {
-      const el = document.getElementById('releases-content');
-      if (!releases || !releases.length) {
-        el.innerHTML = '<span class="loading">Sin novedades</span>';
-        return;
-      }
-      let html = '';
-      const count = Math.min(RELEASES_PER_PAGE, releases.length);
-      for (let i = 0; i < count; i++) {
-        const r = releases[i];
-        const body = (r.body || 'Sin descripción').split('\n')[0];
-        html += `<div class="version-item">
-          <span class="version-tag">${r.tag_name}</span>
-          <span class="version-desc">${body}</span>
-          <span class="version-links">
-            <a href="${r.html_url}" target="_blank">Ver release</a>
-          </span>
-        </div>`;
-      }
-      el.innerHTML = html;
-    }
+function sizeStr(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(0) + ' KB';
+  return (bytes/1024/1024).toFixed(1) + ' MB';
+}
 
-    async function init() {
-      const releases = await fetchReleases();
-      if (releases) {
-        renderDownloads(releases);
-        renderReleases(releases);
-        const latest = releases[0];
-        if (latest) document.getElementById('version-footer').textContent = latest.tag_name;
-      } else {
-        document.getElementById('downloads').innerHTML = '<span class="loading">Error al cargar</span>';
-        document.getElementById('releases-content').innerHTML = '<span class="loading">Error al cargar</span>';
-      }
-    }
-    init();
-  </script>
+function renderCards(releases) {
+  const el = document.getElementById('cards-container');
+  if (!releases || !releases.length) {
+    el.innerHTML = '<div class="card"><div class="loading">Sin releases</div></div>';
+    return;
+  }
+  const latest = releases[0];
+  let html = '';
+  for (const p of PLATFORMS) {
+    const asset = getAsset(latest, p.pattern);
+    const url = asset ? asset.browser_download_url : null;
+    const size = asset ? sizeStr(asset.size) : '';
+    const sha = asset ? (asset.name.replace(/\.[^.]+$/, '') + '.sha256') : '';
+    html += `<div class="card">
+      <div class="icon">${p.icon}</div>
+      <h3>${p.key}</h3>
+      <div class="meta">${latest.tag_name}${size ? ' &middot; ' + size : ''}</div>
+      ${url ? `<a href="${url}" class="btn-dl">Descargar</a>` : `<span class="btn-dl disabled">No disponible</span>`}
+      ${url ? `<div class="sha"><a href="${url}.sha256" target="_blank">SHA-256</a></div>` : ''}
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
+function renderReleases(releases) {
+  const el = document.getElementById('releases-container');
+  if (!releases || !releases.length) {
+    el.innerHTML = '<div class="loading">Sin novedades</div>';
+    return;
+  }
+  let html = '';
+  for (let i = 0; i < Math.min(3, releases.length); i++) {
+    const r = releases[i];
+    const body = r.body ? r.body.replace(/\n/g, '<br>') : 'Sin descripción';
+    const date = r.published_at ? new Date(r.published_at).toLocaleDateString('es') : '';
+    html += `<div class="release">
+      <span class="tag">${r.tag_name}</span><span class="date">${date}</span>
+      <div class="body">${body}</div>
+      <a href="${r.html_url}" class="dl-link" target="_blank">Ver descargas →</a>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
+async function init() {
+  const releases = await fetchReleases();
+  if (releases && releases.length) {
+    const latest = releases[0];
+    const tag = latest.tag_name;
+    document.getElementById('hero-version').textContent = tag;
+    document.getElementById('footer-version').textContent = tag;
+
+    const winAsset = getAsset(latest, 'Windows');
+    if (winAsset) document.getElementById('hero-dl').href = winAsset.browser_download_url;
+
+    renderCards(releases);
+    renderReleases(releases);
+  } else {
+    document.getElementById('cards-container').innerHTML = '<div class="card"><div class="loading">Error al cargar</div></div>';
+    document.getElementById('releases-container').innerHTML = '<div class="loading">Error al cargar</div>';
+  }
+}
+init();
+</script>
 </body>
 </html>
