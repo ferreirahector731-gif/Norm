@@ -217,6 +217,10 @@ jobs:
     needs: release
     if: success()
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:

@@ -28,12 +28,11 @@ tasks.register<Delete>("clean") {
     delete(rootProject.buildDir)
 }
 
-// PATCH CORRECTO para isar_flutter_libs (SIN afterEvaluate)
+// PATCH: Forzar namespace en isar_flutter_libs usando plugins.withId
 subprojects {
-    if (project.name == "isar_flutter_libs") {
-        project.plugins.withId("com.android.library") {
-            val libExtension = project.extensions.getByName("android") as com.android.build.gradle.LibraryExtension
-            libExtension.namespace = "dev.isar.isar_flutter_libs"
+    plugins.withId("com.android.library") {
+        extensions.configure<com.android.build.gradle.LibraryExtension> {
+            namespace = "dev.isar.isar_flutter_libs"
         }
     }
 }
