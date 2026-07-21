@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.nota_ia_app"
-    compileSdk = 36
+    compileSdk = 34
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -16,9 +16,13 @@ android {
     defaultConfig {
         applicationId = "com.example.nota_ia_app"
         minSdk = 21
-        targetSdk = 36
+        targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 
     buildTypes {

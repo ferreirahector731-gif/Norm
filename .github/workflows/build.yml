@@ -153,11 +153,11 @@ jobs:
           cd build/macos/Build/Products/Release || exit 1
           echo "Contenido del directorio:"
           ls -la
-          if ! ls *.app &> /dev/null; then
+          APP_NAME=$(ls *.app | head -1)
+          if [ -z "$APP_NAME" ]; then
             echo "❌ Error: No se encontró ningún .app en $(pwd)"
             exit 1
           fi
-          APP_NAME=$(ls *.app | head -1)
           echo "Empaquetando $APP_NAME"
           zip -r "../../../../Norm_macOS_v1.3.0.zip" "$APP_NAME"
 
