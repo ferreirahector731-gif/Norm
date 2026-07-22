@@ -86,10 +86,12 @@ flutter_launcher_icons:
 
 msix_config:
   display_name: Norm
-  publisher_display_name: Norm
-  identity_name: com.example.nota_ia_app
+  publisher_display_name: Norm Studio
+  identity_name: com.norm.app
   msix_version: 1.7.0.0
   logo_path: assets/icon/icon.png
+  capabilities:
+    - internetClient
 
 flutter_native_splash:
   color: "#0B0B0F"

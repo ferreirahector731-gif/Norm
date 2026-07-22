@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -6,8 +7,33 @@ import '../../features/ai/domain/semantic_context_model.dart';
 import '../../features/notes/domain/note_model.dart';
 import '../../features/workspace/data/models/block_model.dart';
 
+enum DbStatus { uninitialized, loading, ready, error }
+
+class DbStatusNotifier extends ValueNotifier<DbStatus> {
+  DbStatusNotifier() : super(DbStatus.uninitialized);
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  void setError(String msg) {
+    _errorMessage = msg;
+    value = DbStatus.error;
+  }
+
+  void setReady() {
+    _errorMessage = null;
+    value = DbStatus.ready;
+  }
+
+  void setLoading() {
+    _errorMessage = null;
+    value = DbStatus.loading;
+  }
+}
+
 class DatabaseService {
   static Isar? _isar;
+  static final DbStatusNotifier statusNotifier = DbStatusNotifier();
 
   static Isar get isar {
     if (_isar == null) {
@@ -18,14 +44,47 @@ class DatabaseService {
     return _isar!;
   }
 
-  static Future<void> initialize() async {
-    if (_isar != null) return;
+  static Future<bool> initialize() async {
+    if (_isar != null) return true;
 
-    final dir = await getApplicationDocumentsDirectory();
-    _isar = await Isar.open(
-      [NoteModelSchema, ChatMessageSchema, BlockModelSchema, SemanticContextSchema],
-      directory: dir.path,
-    );
+    statusNotifier.setLoading();
+
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      _isar = await Isar.open(
+        [NoteModelSchema, ChatMessageSchema, BlockModelSchema, SemanticContextSchema],
+        directory: dir.path,
+        inspector: kDebugMode,
+      );
+      statusNotifier.setReady();
+      return true;
+    } catch (e) {
+      debugPrint('❌ Isar initialization failed: $e');
+
+      // Fallback: intentar eliminar y recrear la instancia
+      try {
+        final dir = await getApplicationDocumentsDirectory();
+        await Isar.deleteInstance(
+          name: 'default',
+          directory: dir.path,
+        );
+        _isar = await Isar.open(
+          [NoteModelSchema, ChatMessageSchema, BlockModelSchema, SemanticContextSchema],
+          directory: dir.path,
+          inspector: kDebugMode,
+        );
+        statusNotifier.setReady();
+        debugPrint('✅ Isar re-initialized successfully after fallback');
+        return true;
+      } catch (fallbackError) {
+        statusNotifier.setError(
+          'Error crítico de base de datos local. '
+          'Por favor reinicia la app o reinstala.\n$fallbackError',
+        );
+        debugPrint('❌ Isar fallback also failed: $fallbackError');
+        return false;
+      }
+    }
   }
 
   static Future<void> saveNote(NoteModel note) async {

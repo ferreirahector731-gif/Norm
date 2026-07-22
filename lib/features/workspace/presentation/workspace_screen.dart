@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/database/database_service.dart';
@@ -16,6 +17,8 @@ import '../../notes/domain/note_model.dart';
 import '../../notes/presentation/widgets/editor_workspace.dart';
 import '../../notes/presentation/widgets/note_bento_explorer.dart';
 import '../../notes/presentation/widgets/whiteboard_canvas.dart';
+import '../../notes/presentation/notifiers/notes_notifier.dart';
+import '../../settings/presentation/settings_dialog.dart';
 import '../../settings/presentation/settings_screen.dart';
 
 class WorkspaceScreen extends StatefulWidget {
@@ -28,17 +31,18 @@ class WorkspaceScreen extends StatefulWidget {
 }
 
 class _WorkspaceScreenState extends State<WorkspaceScreen> {
-  List<NoteModel> _notes = [];
-  NoteModel? _activeNote;
-  bool _isLoading = true;
-
   Timer? _saveDebounce;
 
   @override
   void initState() {
     super.initState();
-    _loadNotes();
+    _initNotifier();
     _checkUpdate();
+  }
+
+  Future<void> _initNotifier() async {
+    final notifier = context.read<NotesNotifier>();
+    await notifier.loadNotes(initialNote: widget.initialNote);
   }
 
   Future<void> _checkUpdate() async {
@@ -68,65 +72,25 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
     }
   }
 
-  Future<void> _loadNotes() async {
-    final notes = await DatabaseService.getAllNotes();
-    if (!mounted) return;
-
-    NoteModel? targetNote;
-
-    if (widget.initialNote != null) {
-      targetNote = notes.cast<NoteModel?>().firstWhere(
-        (n) => n!.id == widget.initialNote!.id,
-        orElse: () => null,
-      );
-    }
-
-    if (targetNote == null && notes.isNotEmpty) {
-      targetNote = notes.first;
-    }
-
-    if (targetNote == null) {
-      final welcomeNote = NoteModel.create(
-        title: 'Bienvenido a Norm',
-        contentJson: '[]',
-      );
-      await DatabaseService.saveNote(welcomeNote);
-      SyncManager.scheduleSync();
-      notes.add(welcomeNote);
-      targetNote = welcomeNote;
-    }
-
-    setState(() {
-      _notes = notes;
-      _isLoading = false;
-    });
-
-    if (targetNote != null) {
-      if (_isWhiteboard(targetNote)) {
-        setState(() {
-          _activeNote = targetNote;
-          _isLoading = false;
-        });
-      } else {
-        await _selectNote(targetNote, persistCurrent: false);
-      }
-    }
-  }
-
   Future<void> _selectNote(NoteModel note, {required bool persistCurrent}) async {
+    final notifier = context.read<NotesNotifier>();
     if (_isWhiteboard(note)) {
-      if (persistCurrent) await _saveActiveNote();
+      if (persistCurrent && notifier.activeNote != null) {
+        await notifier.updateNote(notifier.activeNote!);
+      }
       if (!mounted) return;
       await Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => WhiteboardCanvas(note: note)),
       );
-      await _loadNotes();
+      await notifier.loadNotes();
       return;
     }
 
-    if (persistCurrent) await _saveActiveNote();
+    if (persistCurrent && notifier.activeNote != null) {
+      await notifier.updateNote(notifier.activeNote!);
+    }
 
-    setState(() => _activeNote = note);
+    notifier.selectNote(note);
   }
 
   bool _isWhiteboard(NoteModel note) {
@@ -134,162 +98,27 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
     return raw.isNotEmpty && raw.startsWith('[');
   }
 
-  void _showNewNoteChooser() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Theme.of(context).cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Nueva nota',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 24),
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Theme.of(ctx).colorScheme.primaryContainer.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(Icons.article_outlined, color: Theme.of(ctx).colorScheme.primary),
-                ),
-                title: const Text('Documento de Texto'),
-                subtitle: const Text('Editor enriquecido con AppFlowy'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  _createTextNote();
-                },
-              ),
-              const Divider(indent: 16, endIndent: 16),
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff9d4edd).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.draw_outlined, color: Color(0xff9d4edd)),
-                ),
-                title: const Text('Pizarrón Blanco'),
-                subtitle: const Text('Dibujo vectorial con lápiz y colores'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  _createWhiteboard();
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _createTextNote() async {
-    await _saveActiveNote();
-
-    final note = NoteModel.create(
-      title: 'Nota sin título',
-      contentJson: '[]',
-    );
-    await DatabaseService.saveNote(note);
-    SyncManager.scheduleSync();
-
-    final notes = await DatabaseService.getAllNotes();
-    if (!mounted) return;
-
-    setState(() => _notes = notes);
-    await _selectNote(note, persistCurrent: false);
-  }
-
-  Future<void> _createWhiteboard() async {
-    await _saveActiveNote();
-
-    final note = NoteModel.create(
-      title: 'Pizarrón sin título',
-      contentJson: '[]',
-    );
-    await DatabaseService.saveNote(note);
-    SyncManager.scheduleSync();
-
-    final notes = await DatabaseService.getAllNotes();
-    if (!mounted) return;
-
-    setState(() => _notes = notes);
-    await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => WhiteboardCanvas(note: note),
-      ),
-    );
-    await _loadNotes();
-  }
-
-  Future<void> _deleteActiveNote() async {
-    final active = _activeNote;
-    if (active == null || _notes.length <= 1) return;
-
-    await DatabaseService.deleteNote(active.id);
-    final notes = await DatabaseService.getAllNotes();
-    if (!mounted || notes.isEmpty) return;
-
-    setState(() => _notes = notes);
-    await _selectNote(notes.first, persistCurrent: false);
-  }
-
   void _onNoteUpdated(NoteModel updatedNote) {
-    setState(() {
-      _activeNote = updatedNote;
-      final idx = _notes.indexWhere((n) => n.id == updatedNote.id);
-      if (idx >= 0) _notes[idx] = updatedNote;
-    });
+    context.read<NotesNotifier>().updateNote(updatedNote);
     _debouncedSave();
   }
 
   void _debouncedSave() {
     _saveDebounce?.cancel();
     _saveDebounce = Timer(const Duration(milliseconds: 500), () async {
-      final note = _activeNote;
+      final notifier = context.read<NotesNotifier>();
+      final note = notifier.activeNote;
       if (note == null) return;
-      await DatabaseService.saveNote(note);
-      SyncManager.scheduleSync();
-      final notes = await DatabaseService.getAllNotes();
-      if (!mounted) return;
-      setState(() => _notes = notes);
+      await notifier.updateNote(note);
     });
   }
 
-  Future<void> _saveActiveNote() async {
-    final active = _activeNote;
-    if (active == null) return;
-    await DatabaseService.saveNote(active);
-    SyncManager.scheduleSync();
-    final notes = await DatabaseService.getAllNotes();
-    if (!mounted) return;
-    setState(() {
-      _notes = notes;
-      _activeNote = notes.firstWhere(
-        (note) => note.id == active.id,
-        orElse: () => active,
-      );
-    });
+  Future<void> _deleteActiveNote() async {
+    final notifier = context.read<NotesNotifier>();
+    final active = notifier.activeNote;
+    if (active == null || notifier.notes.length <= 1) return;
+
+    await notifier.deleteNote(active.id);
   }
 
   @override
@@ -324,6 +153,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
 
   Widget _buildMobileLayout(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final notifier = context.watch<NotesNotifier>();
 
     return Scaffold(
       backgroundColor: scheme.surface,
@@ -333,16 +163,16 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
       ),
       drawer: _buildMobileDrawer(context),
       body: EditorWorkspace(
-        key: ValueKey(_activeNote?.id),
-        note: _activeNote,
-        isLoading: _isLoading,
+        key: ValueKey(notifier.activeNote?.id),
+        note: notifier.activeNote,
+        isLoading: notifier.isLoading,
         onNoteUpdated: _onNoteUpdated,
       ),
       floatingActionButton: FloatingActionButton(
         mini: true,
         backgroundColor: scheme.primary,
         foregroundColor: scheme.onPrimary,
-        onPressed: () => showAiAssistant(context, noteId: _activeNote?.id),
+        onPressed: () => showAiAssistant(context, noteId: notifier.activeNote?.id),
         child: const Icon(Icons.auto_awesome),
       ),
     );
@@ -350,6 +180,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
 
   Widget _buildMobileAppBar(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final notifier = context.watch<NotesNotifier>();
 
     return Container(
       decoration: BoxDecoration(
@@ -372,7 +203,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
               ),
               Expanded(
                 child: Text(
-                  _activeNote?.title ?? 'Nota',
+                  notifier.activeNote?.title ?? 'Nota',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -391,7 +222,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
               IconButton(
                 tooltip: 'Eliminar nota',
                 icon: Icon(Icons.delete_outline, color: scheme.outline),
-                onPressed: _notes.length > 1 ? _deleteActiveNote : null,
+                onPressed: notifier.notes.length > 1 ? _deleteActiveNote : null,
               ),
               IconButton(
                 icon: Icon(Icons.settings_outlined, color: scheme.outline),
@@ -401,7 +232,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
               IconButton(
                 icon: Icon(Icons.auto_awesome, color: scheme.primary),
                 tooltip: 'Asistente IA',
-                onPressed: () => showAiAssistant(context, noteId: _activeNote?.id),
+                onPressed: () => showAiAssistant(context, noteId: notifier.activeNote?.id),
               ),
             ],
           ),
@@ -413,6 +244,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
   Widget _buildMobileDrawer(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final notifier = context.watch<NotesNotifier>();
 
     return Drawer(
       backgroundColor: scheme.surface,
@@ -438,6 +270,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
   Widget _buildDrawerHeader(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final notifier = context.read<NotesNotifier>();
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -482,7 +315,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
           FilledButton.icon(
             onPressed: () {
               Navigator.of(context).pop();
-              _showNewNoteChooser();
+              _showNewNoteChooser(context);
             },
             icon: const Icon(Icons.add, size: 18),
             label: const Text('Nueva nota'),
@@ -495,8 +328,79 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
     );
   }
 
+  void _showNewNoteChooser(BuildContext context) {
+    final notifier = context.read<NotesNotifier>();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Nueva nota',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 24),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Theme.of(ctx).colorScheme.primaryContainer.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.article_outlined, color: Theme.of(ctx).colorScheme.primary),
+                ),
+                title: const Text('Documento de Texto'),
+                subtitle: const Text('Editor enriquecido con AppFlowy'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  notifier.createTextNote();
+                },
+              ),
+              const Divider(indent: 16, endIndent: 16),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xff9d4edd).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.draw_outlined, color: Color(0xff9d4edd)),
+                ),
+                title: const Text('Pizarrón Blanco'),
+                subtitle: const Text('Dibujo vectorial con lápiz y colores'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  notifier.createWhiteboard();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDrawerNoteList(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final notifier = context.watch<NotesNotifier>();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -516,10 +420,10 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: _notes.length,
+            itemCount: notifier.notes.length,
             itemBuilder: (context, index) {
-              final note = _notes[index];
-              final isSelected = note.id == _activeNote?.id;
+              final note = notifier.notes[index];
+              final isSelected = note.id == notifier.activeNote?.id;
               return Material(
                 color: isSelected
                     ? scheme.primaryContainer.withOpacity(0.15)
@@ -614,6 +518,11 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
                           ],
                         ),
                       ),
+                      IconButton(
+                        icon: Icon(Icons.settings_outlined, color: scheme.onSurfaceVariant, size: 18),
+                        tooltip: 'Ajustes',
+                        onPressed: () => SettingsDialog.show(context),
+                      ),
                     ],
                   ),
                 ),
@@ -630,10 +539,6 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
                   ),
                 ),
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: ThemeSelector(),
-                ),
               ],
             ),
           ),
@@ -702,13 +607,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
           filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
           child: Container(
             color: Colors.white.withOpacity(0.02),
-            child: NoteBentoExplorer(
-              notes: _notes,
-              activeNote: _activeNote,
-              isLoading: _isLoading,
-              onNoteSelected: (note) => _selectNote(note, persistCurrent: true),
-              onCreateNote: _showNewNoteChooser,
-            ),
+            child: const NoteBentoExplorer(),
           ),
         ),
       ),
@@ -717,6 +616,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
 
   Widget _buildEditorArea(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final notifier = context.watch<NotesNotifier>();
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
@@ -733,9 +633,9 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
           _buildEditorAppBar(context),
           Expanded(
             child: EditorWorkspace(
-              key: ValueKey(_activeNote?.id),
-              note: _activeNote,
-              isLoading: _isLoading,
+              key: ValueKey(notifier.activeNote?.id),
+              note: notifier.activeNote,
+              isLoading: notifier.isLoading,
               onNoteUpdated: _onNoteUpdated,
             ),
           ),
@@ -747,6 +647,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
   Widget _buildEditorAppBar(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final notifier = context.watch<NotesNotifier>();
 
     return Container(
       height: 70,
@@ -761,7 +662,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
         children: [
           Flexible(
             child: Text(
-              _activeNote?.title ?? 'Nota',
+              notifier.activeNote?.title ?? 'Nota',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -786,16 +687,15 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
           IconButton(
             tooltip: 'Eliminar nota',
             icon: Icon(Icons.delete_outline, color: scheme.outline),
-            onPressed: _notes.length > 1 ? _deleteActiveNote : null,
+            onPressed: notifier.notes.length > 1 ? _deleteActiveNote : null,
           ),
           IconButton(
             icon: Icon(Icons.auto_awesome, color: scheme.primary),
             tooltip: 'Asistente IA',
-            onPressed: () => showAiAssistant(context, noteId: _activeNote?.id),
+            onPressed: () => showAiAssistant(context, noteId: notifier.activeNote?.id),
           ),
         ],
       ),
     );
   }
-
-} // _WorkspaceScreenState
+}

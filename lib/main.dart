@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'core/database/database_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/navigation/keyboard_shortcuts.dart';
 import 'features/auth/data/auth_service.dart';
-import 'features/auth/presentation/login_screen.dart';
+import 'features/auth/presentation/auth_screen.dart';
 import 'features/workspace/presentation/workspace_screen.dart';
 import 'features/ai/domain/retention_service.dart';
+import 'features/notes/presentation/notifiers/notes_notifier.dart';
 import 'features/settings/services/settings_service.dart';
 
 void main() async {
@@ -50,6 +52,12 @@ void main() async {
   };
 
   await SettingsService.init();
+
+  final authService = AuthService(isCloudEnabled: cloudOk);
+  await authService.loadSession();
+
+  await DatabaseService.initialize();
+
   RetentionService().start();
   _syncRetentionAtStartup();
 
@@ -57,7 +65,9 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        Provider(create: (_) => AuthService(isCloudEnabled: cloudOk)),
+        Provider.value(value: authService),
+        ChangeNotifierProvider(create: (_) => NotesNotifier()),
+        ChangeNotifierProvider.value(value: DatabaseService.statusNotifier),
       ],
       child: const MyApp(),
     ),
@@ -75,6 +85,19 @@ void _syncRetentionAtStartup() {
     MemoryRetention.forever: RetentionPeriod.never,
   };
   RetentionService().updatePeriod(map[retention] ?? RetentionPeriod.month);
+}
+
+void _retryDbInit(BuildContext context) {
+  context.read<DbStatusNotifier>().setLoading();
+  DatabaseService.initialize().then((_) {
+    if (context.mounted) {
+      context.read<DbStatusNotifier>().setReady();
+    }
+  }).catchError((e) {
+    if (context.mounted) {
+      context.read<DbStatusNotifier>().setError('$e');
+    }
+  });
 }
 
 Future<void> _showBetaBannerIfFirstTime() async {
@@ -112,9 +135,60 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final authService = context.read<AuthService>();
+    final dbStatus = context.watch<DbStatusNotifier>();
+
+    if (dbStatus.value == DbStatus.loading) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: themeProvider.themeData,
+        home: const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
+          ),
+        ),
+      );
+    }
+
+    if (dbStatus.value == DbStatus.error) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: themeProvider.themeData,
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Error de base de datos',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    dbStatus.errorMessage ?? 'Error desconocido',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white70, fontSize: 13),
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    onPressed: () => _retryDbInit(context),
+                    child: const Text('Reintentar'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     Widget home;
     if (!authService.isCloudEnabled) {
+      home = const WorkspaceScreen();
+    } else if (authService.hasSession) {
       home = const WorkspaceScreen();
     } else {
       home = StreamBuilder<User?>(
@@ -133,7 +207,7 @@ class MyApp extends StatelessWidget {
             return const WorkspaceScreen();
           }
 
-          return const LoginScreen();
+          return const AuthScreen();
         },
       );
     }

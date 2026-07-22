@@ -47,10 +47,21 @@ jobs:
           }
           Write-Output "$($exe.Name) ✅"
 
-      - name: Package ZIP
+      - name: Build MSIX installer
         shell: pwsh
         run: |
-          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath Norm_Windows_${{ github.ref_name }}.zip
+          flutter pub run msix:create
+
+      - name: Verify MSIX exists
+        shell: pwsh
+        run: |
+          $msix = Get-ChildItem "*.msix" | Select-Object -First 1
+          if (-not $msix) {
+            Write-Error "No .msix found!"
+            exit 1
+          }
+          Write-Output "$($msix.Name) ✅"
+          Move-Item -LiteralPath $msix.Name -Destination "Norm_${{ github.ref_name }}.msix" -Force
 
       - name: Install Inno Setup
         run: |
@@ -65,7 +76,7 @@ jobs:
         with:
           name: windows-build
           path: |
-            Norm_Windows_${{ github.ref_name }}.zip
+            Norm_${{ github.ref_name }}.msix
             installer/Output/Norm_${{ github.ref_name }}_Setup.exe
 
   build-android:
@@ -249,8 +260,8 @@ jobs:
             ### 📥 Descargas
 
             **Windows**
-            - `Norm_Windows_${{ github.ref_name }}.zip` — Ejecutable portátil
-            - `Norm_${{ github.ref_name }}_Setup.exe` — Instalador completo
+            - `Norm_${{ github.ref_name }}.msix` — Instalador MSIX
+            - `Norm_${{ github.ref_name }}_Setup.exe` — Instalador Inno Setup
 
             **Linux**
             - `Norm_Linux_${{ github.ref_name }}.tar.gz` — Bundle portable
