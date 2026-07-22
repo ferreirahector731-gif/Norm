@@ -24,7 +24,7 @@ class ThemeProvider extends ChangeNotifier {
     }
   }
 
-  static const _accentViolet = Color(0xff7B2CBF);
+  static const _accentBlue = Color(0xFF3B82F6);
 
   static final TextTheme _baseTextTheme = TextTheme(
     displayLarge: const TextStyle(letterSpacing: -1.5, height: 1.2),
@@ -47,44 +47,52 @@ class ThemeProvider extends ChangeNotifier {
   static final ThemeData _darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: const Color(0xff0B0B0F),
+    scaffoldBackgroundColor: const Color(0xFF090D16),
     colorScheme: const ColorScheme.dark(
-      surface: Color(0xff131318),
-      surfaceContainerLow: Color(0xff1A1A22),
-      surfaceContainer: Color(0xff22222E),
-      surfaceContainerHigh: Color(0xff2A2A38),
-      surfaceContainerHighest: Color(0xff323246),
-      primary: _accentViolet,
-      onPrimary: Color(0xffFFFFFF),
-      primaryContainer: Color(0xff3B1F6E),
-      onPrimaryContainer: Color(0xffEAD4FF),
-      secondary: Color(0xff9D7BB5),
-      onSecondary: Color(0xff1A1120),
-      secondaryContainer: Color(0xff2E1A3E),
-      onSecondaryContainer: Color(0xffE8D0F5),
-      tertiary: Color(0xff6E8BB5),
-      error: Color(0xffEF4444),
-      onError: Color(0xffFFFFFF),
-      surfaceTint: _accentViolet,
-      outline: Color(0xff3E3E4E),
-      outlineVariant: Color(0xff2A2A38),
+      surface: Color(0xFF090D16),
+      surfaceContainerLow: Color(0xFF111622),
+      surfaceContainer: Color(0xFF131B2E),
+      surfaceContainerHigh: Color(0xFF1A2340),
+      surfaceContainerHighest: Color(0xFF222D4A),
+      primary: _accentBlue,
+      onPrimary: Color(0xFFFFFFFF),
+      primaryContainer: Color(0xFF1E3A6B),
+      onPrimaryContainer: Color(0xFFD6E4FF),
+      secondary: Color(0xFF60A5FA),
+      onSecondary: Color(0xFF0F1A35),
+      secondaryContainer: Color(0xFF1A3361),
+      onSecondaryContainer: Color(0xFFD6E4FF),
+      tertiary: Color(0xFF38BDF8),
+      error: Color(0xFFEF4444),
+      onError: Color(0xFFFFFFFF),
+      surfaceTint: _accentBlue,
+      outline: Color(0xFF2D3A5A),
+      outlineVariant: Color(0xFF1E2A44),
     ),
     textTheme: _baseTextTheme.apply(
-      bodyColor: const Color(0xffE8E8ED),
-      displayColor: const Color(0xffF0F0F5),
+      bodyColor: const Color(0xFF94A3B8),
+      displayColor: const Color(0xFFF8FAFC),
     ),
     dividerTheme: DividerThemeData(
-      color: const Color(0xffFFFFFF).withOpacity(0.06),
+      color: Colors.white.withOpacity(0.06),
       thickness: 0.5,
     ),
     cardTheme: CardTheme(
-      color: const Color(0xff1A1A22),
+      color: const Color(0xFF131B2E),
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: Colors.white.withOpacity(0.08)),
+      ),
+    ),
+    navigationRailTheme: NavigationRailThemeData(
+      backgroundColor: const Color(0xFF090D16),
+      indicatorColor: _accentBlue.withOpacity(0.15),
+      labelType: NavigationRailLabelType.none,
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: _accentViolet,
+        backgroundColor: _accentBlue,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -104,7 +112,7 @@ class ThemeProvider extends ChangeNotifier {
       surface: Color(0xffFFFFFF),
       surfaceContainerLow: Color(0xffF0EFEC),
       surfaceContainer: Color(0xffE8E7E3),
-      primary: _accentViolet,
+      primary: const Color(0xff7B2CBF),
       onPrimary: Color(0xffFFFFFF),
       primaryContainer: Color(0xffEDE0FF),
       onPrimaryContainer: Color(0xff2E0056),
@@ -114,7 +122,7 @@ class ThemeProvider extends ChangeNotifier {
       onSecondaryContainer: Color(0xff250B34),
       error: Color(0xffDC2626),
       onError: Color(0xffFFFFFF),
-      surfaceTint: _accentViolet,
+      surfaceTint: const Color(0xff7B2CBF),
       outline: Color(0xffC2C1BC),
       outlineVariant: Color(0xffD6D5D0),
     ),
@@ -133,7 +141,7 @@ class ThemeProvider extends ChangeNotifier {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: _accentViolet,
+        backgroundColor: const Color(0xff7B2CBF),
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
