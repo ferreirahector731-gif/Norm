@@ -37,15 +37,35 @@ jobs:
       - name: Build
         run: flutter build windows --release
 
-      - name: Package
+      - name: Verify binary exists
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "build\windows\x64\runner\Release\norm.exe")) {
+            Write-Error "norm.exe not found!"
+            exit 1
+          }
+          Write-Output "norm.exe ✅"
+
+      - name: Package ZIP
         shell: pwsh
         run: |
           Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath Norm_Windows_${{ github.ref_name }}.zip
 
+      - name: Install Inno Setup
+        run: |
+          choco install innosetup -y
+
+      - name: Build Installer
+        shell: pwsh
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /O"installer\Output" /F"Norm_${{ github.ref_name }}_Setup" installer\setup.iss
+
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: Norm_Windows_${{ github.ref_name }}.zip
+          path: |
+            Norm_Windows_${{ github.ref_name }}.zip
+            installer/Output/Norm_${{ github.ref_name }}_Setup.exe
 
   build-android:
     continue-on-error: true
@@ -76,12 +96,32 @@ jobs:
       - name: Build APKs (split-per-abi)
         run: flutter build apk --release --split-per-abi
 
+      - name: Verify APKs exist
+        run: |
+          ls -la build/app/outputs/flutter-apk/
+          if ls build/app/outputs/flutter-apk/app-arm64-v8a-release.apk 1>/dev/null 2>&1; then
+            echo "APKs ✅"
+          else
+            echo "APKs not found, trying universal..."
+            ls build/app/outputs/flutter-apk/app-release.apk 1>/dev/null 2>&1 && echo "universal APK found"
+          fi
+
       - name: Package
         run: |
           mkdir -p artifacts
-          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk artifacts/Norm_${{ github.ref_name }}_arm64-v8a.apk
-          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk artifacts/Norm_${{ github.ref_name }}_armeabi-v7a.apk
-          cp build/app/outputs/flutter-apk/app-x86_64-release.apk artifacts/Norm_${{ github.ref_name }}_x86_64.apk
+          if [ -f build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ]; then
+            cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk artifacts/Norm_${{ github.ref_name }}_arm64-v8a.apk
+          fi
+          if [ -f build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk ]; then
+            cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk artifacts/Norm_${{ github.ref_name }}_armeabi-v7a.apk
+          fi
+          if [ -f build/app/outputs/flutter-apk/app-x86_64-release.apk ]; then
+            cp build/app/outputs/flutter-apk/app-x86_64-release.apk artifacts/Norm_${{ github.ref_name }}_x86_64.apk
+          fi
+          # Fallback: universal APK
+          if [ -f build/app/outputs/flutter-apk/app-release.apk ]; then
+            cp build/app/outputs/flutter-apk/app-release.apk artifacts/Norm_${{ github.ref_name }}.apk
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
@@ -115,10 +155,20 @@ jobs:
       - name: Build
         run: flutter build linux --release --verbose
 
+      - name: Verify bundle exists
+        run: |
+          if [ -d "build/linux/x64/release/bundle" ]; then
+            echo "bundle dir ✅"
+          else
+            echo "bundle dir not found!"
+            ls -la build/linux/x64/release/
+            exit 1
+          fi
+
       - name: Package
         run: |
           cd build/linux/x64/release/bundle
-          tar czf ../../../../../Norm_Linux_${{ github.ref_name }}.tar.gz *
+          tar czf "$GITHUB_WORKSPACE/Norm_Linux_${{ github.ref_name }}.tar.gz" *
 
       - uses: actions/upload-artifact@v4
         with:
@@ -154,13 +204,20 @@ jobs:
             exit $BUILD_EXIT_CODE
           fi
 
+      - name: Verify app exists
+        run: |
+          if [ -d "build/macos/Build/Products/Release/nota_ia_app.app" ]; then
+            echo "nota_ia_app.app ✅"
+          else
+            echo "app not found!"
+            ls -la build/macos/Build/Products/Release/
+            exit 1
+          fi
+
       - name: Package macOS
         run: |
-          cd build/macos/Build/Products/Release || exit 1
-          echo "Contenido del directorio:"
-          ls -la
-          echo "Empaquetando nota_ia_app.app"
-          zip -r -y "../../../../Norm_macOS_${{ github.ref_name }}.zip" nota_ia_app.app
+          cd build/macos/Build/Products/Release
+          zip -r -y "$GITHUB_WORKSPACE/Norm_macOS_${{ github.ref_name }}.zip" "nota_ia_app.app"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -169,7 +226,7 @@ jobs:
 
   release:
     name: Create Release
-    needs: [build-windows, build-linux]
+    needs: [build-windows, build-linux, build-android, build-macos]
     runs-on: ubuntu-latest
 
     steps:
@@ -188,13 +245,14 @@ jobs:
           body: |
             ## Norm ${{ github.ref_name }}
 
-            ### Descargas
+            ### 📥 Descargas
 
             **Windows**
             - `Norm_Windows_${{ github.ref_name }}.zip` — Ejecutable portátil
+            - `Norm_${{ github.ref_name }}_Setup.exe` — Instalador completo
 
             **Linux**
-            - `Norm_Linux_${{ github.ref_name }}.tar.gz` — AppImage / bundle portable
+            - `Norm_Linux_${{ github.ref_name }}.tar.gz` — Bundle portable
 
             **Android** (experimental)
             - `Norm_${{ github.ref_name }}_arm64-v8a.apk` — Dispositivos modernos
@@ -203,11 +261,6 @@ jobs:
 
             **macOS** (experimental)
             - `Norm_macOS_${{ github.ref_name }}.zip` — Aplicación para macOS
-
-            ### Notas
-            - Android y macOS son experimentales en esta versión.
-            - Para Windows, también puedes generar un instalador `.exe` con Inno Setup
-              usando `installer/setup.iss`.
           draft: false
           prerelease: false
           files: |

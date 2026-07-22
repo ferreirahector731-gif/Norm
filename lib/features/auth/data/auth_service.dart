@@ -1,37 +1,31 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient, User, AuthResponse;
 import 'package:flutter/foundation.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final SupabaseClient _supabase = Supabase.instance.client;
 
-  Stream<User?> get authStateStream => _auth.authStateChanges();
+  Stream<User?> get authStateStream => _supabase.auth.onAuthStateChange.map(
+    (data) => data.session?.user,
+  );
 
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser => _supabase.auth.currentUser;
 
   Future<void> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return;
+    await _supabase.auth.signInWithOAuth(
+      OAuthProvider.google,
+      redirectTo: kIsWeb ? null : 'io.supabase.flutter://callback',
+    );
+  }
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+  Future<AuthResponse> signInWithEmail(String email, String password) async {
+    return _supabase.auth.signInWithPassword(email: email, password: password);
+  }
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await _auth.signInWithCredential(credential);
-    } catch (e) {
-      debugPrint("Error en autenticación con Firebase/Google: $e");
-      rethrow;
-    }
+  Future<AuthResponse> signUpWithEmail(String email, String password) async {
+    return _supabase.auth.signUp(email: email, password: password);
   }
 
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    await _auth.signOut();
+    await _supabase.auth.signOut();
   }
 }

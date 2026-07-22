@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
@@ -12,9 +11,15 @@ import 'features/ai/domain/retention_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
+  try {
+    await Supabase.initialize(
+      url: const String.fromEnvironment('SUPABASE_URL'),
+      anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
+    );
+  } catch (e) {
+    debugPrint('Error al inicializar Supabase: $e');
+  }
 
-  // Iniciar limpieza programada de mensajes de chat
   RetentionService().start();
 
   runApp(
@@ -27,7 +32,6 @@ void main() async {
     ),
   );
 
-  // ─── Banner Beta (solo primera vez) ──────────────────────────────────
   WidgetsBinding.instance.addPostFrameCallback((_) => _showBetaBannerIfFirstTime());
 }
 

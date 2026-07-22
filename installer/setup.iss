@@ -8,7 +8,7 @@
 ;   4. El instalador se generará en installer\Output\
 
 #define MyAppName "Norm"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.6.6"
 #define MyAppPublisher "Creative Thinker"
 #define MyAppURL "https://norm.app"
 #define MyAppExeName "nota_ia_app.exe"
