@@ -7,9 +7,11 @@ import '../../../core/database/database_service.dart';
 import '../../../core/widgets/glass_bento_card.dart';
 import '../../auth/data/auth_service.dart';
 import '../../notes/domain/note_model.dart';
-import '../../notes/presentation/widgets/whiteboard_canvas.dart';
 import '../../notes/presentation/widgets/editor_workspace.dart';
+import '../../canvas/presentation/infinite_canvas_screen.dart';
 import '../../ai/presentation/ai_assistant_panel.dart';
+import '../../ai/presentation/ai_bubble_widget.dart';
+import '../../ai/services/ollama_ai_service.dart';
 import '../../settings/presentation/settings_screen.dart';
 
 enum _NavTab { home, notes, whiteboard, settings }
@@ -64,9 +66,85 @@ class _BentoDashboardScreenState extends State<BentoDashboardScreen> {
   }
 
   void _openWhiteboard() {
-    final note = NoteModel.create(title: 'Pizarrón', contentJson: '[]');
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => WhiteboardCanvas(note: note)),
+      MaterialPageRoute(builder: (_) => const InfiniteCanvasScreen()),
+    );
+  }
+
+  void _openAiQuickQuery() {
+    final service = OllamaAIService();
+    final promptCtrl = TextEditingController();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            Stream<String>? stream;
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                left: 16, right: 16, top: 16,
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF090D16),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 40, height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Consulta rápida IA',
+                      style: TextStyle(color: Color(0xFFF8FAFC), fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    if (stream != null)
+                      AIBubbleWidget(aiStream: stream)
+                    else
+                      TextField(
+                        controller: promptCtrl,
+                        style: const TextStyle(color: Color(0xFFF8FAFC)),
+                        decoration: InputDecoration(
+                          hintText: 'Escribe tu consulta...',
+                          hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+                          filled: true,
+                          fillColor: const Color(0xFF131B2E).withOpacity(0.6),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.all(14),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.send, color: Color(0xFF3B82F6)),
+                            onPressed: () {
+                              final text = promptCtrl.text.trim();
+                              if (text.isEmpty) return;
+                              setSheetState(() {
+                                stream = service.generateTextStream(prompt: text);
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -78,6 +156,8 @@ class _BentoDashboardScreenState extends State<BentoDashboardScreen> {
     switch (_selectedTab) {
       case _NavTab.whiteboard:
         _openWhiteboard();
+        break;
+      case _NavTab.notes:
         break;
       case _NavTab.settings:
         showSettings(context);
@@ -406,7 +486,7 @@ class _BentoDashboardScreenState extends State<BentoDashboardScreen> {
 
   Widget _buildAiCard() {
     return GlassBentoCard(
-      onTap: _openAiAssistant,
+      onTap: _openAiQuickQuery,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

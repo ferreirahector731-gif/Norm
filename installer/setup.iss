@@ -1,7 +1,7 @@
 [Setup]
 AppId={{C7896C7A-3B64-47B2-B111-A5C0E2B8E5F9}
 AppName=Norm
-AppVersion=1.6.6
+AppVersion=1.6.12
 AppPublisher=Norm
 DefaultDirName={autopf}\Norm
 DefaultGroupName=Norm
