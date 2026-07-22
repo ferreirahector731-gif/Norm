@@ -2,11 +2,14 @@ import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/database/database_service.dart';
 import '../../../core/services/sync_manager.dart';
+import '../../../core/services/update_service.dart';
 import '../../../core/utils/responsive_layout.dart';
 import '../../../core/widgets/cloud_sync_status_widget.dart';
+import '../../../core/widgets/update_dialog.dart';
 import '../../ai/presentation/ai_assistant_panel.dart';
 import '../../home/widgets/theme_selector.dart';
 import '../../notes/domain/note_model.dart';
@@ -35,6 +38,34 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
   void initState() {
     super.initState();
     _loadNotes();
+    _checkUpdate();
+  }
+
+  Future<void> _checkUpdate() async {
+    final currentVer = await UpdateService.getCurrentVersion();
+    if (currentVer == null || !mounted) return;
+
+    final remote = await UpdateService.checkForUpdate();
+    if (remote == null || !mounted) return;
+
+    final hasUpdate = await UpdateService.hasUpdate(currentVer, remote.version);
+    if (!hasUpdate) return;
+
+    final skipped = await UpdateService.getSkippedVersion();
+    if (skipped == remote.version) return;
+
+    final url = await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => UpdateDialog(info: remote),
+    );
+
+    if (url != null && mounted) {
+      final uri = Uri.tryParse(url);
+      if (uri != null && await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      }
+    }
   }
 
   Future<void> _loadNotes() async {
