@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" fill="none">
+  <rect width="1200" height="700" fill="#f6fff8" />
+  <g transform="translate(60,60)">
+    <rect width="1080" height="580" rx="22" fill="#fff" stroke="#e6f2ea" />
+    <text x="40" y="52" font-family="Inter, sans-serif" font-size="20" fill="#0c1813">Pizarrón Infinito — Norm</text>
+  </g>
+</svg>
