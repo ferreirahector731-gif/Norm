@@ -16,7 +16,7 @@
 ## Características Clave
 
 - **Arquitectura Local-First:** Almacenamiento y procesamiento inmediato en el dispositivo mediante Isar Database. Operatividad total sin conexión.
-- **Sincronización Bidireccional:** Respaldo automático en la nube con Supabase y aislamiento por usuario mediante RLS.
+- **Sincronización Bidireccional:** Respaldo automático en la nube con Firebase y aislamiento por usuario.
 - **Editor de Bloques Modular:** Lienzo interactivo para texto estructurado, listas, pizarrones y marcadores multimedia.
 - **Asistente de IA con Consentimiento:** Integración con motores de IA (Local/Ollama o APIs externas).
 - **Interfaz Premium:** Diseño glassmorphic con soporte nativo para tema oscuro.
@@ -25,7 +25,7 @@
 
 - **Framework:** Flutter 3.x
 - **Base de Datos Local:** Isar
-- **Backend & Sync:** Supabase
+- **Backend & Sync:** Firebase
 - **Editor:** AppFlowyEditor
 
 ## Cómo contribuir

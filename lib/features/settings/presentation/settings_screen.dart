@@ -458,7 +458,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Supabase activo',
+                  'Sincronización',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: scheme.onSurface,
                   ),

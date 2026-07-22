@@ -16,7 +16,7 @@ class NoteModel {
   /// Marca si hay cambios locales pendientes de subir a la nube.
   bool isDirty = false;
 
-  /// UUID correspondiente en la tabla de Supabase (nullable hasta el primer sync).
+  /// UUID remoto para sincronización (nullable hasta el primer sync).
   String? remoteId;
 
   /// Última vez que se sincronizó con la nube.

@@ -9,8 +9,8 @@
 *.key
 *.pem
 *.p12
-supabase/config.toml
-**/supabase/config.toml
+# Firebase (opcional si usas local emulator)
+# firebase.json
 
 # ── Firmas Android ───────────────────────────────────────────
 *.jks

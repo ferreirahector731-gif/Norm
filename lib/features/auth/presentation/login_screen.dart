@@ -53,9 +53,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  // DATA ISOLATION POLICY: El flujo de autenticación conecta directamente
-  // el dispositivo con Supabase + Google mediante OAuth2 oficial.
-  // No existe servidor intermediario ni filtrado de datos de terceros.
+  // Autenticación con Firebase + Google mediante OAuth2 oficial.
   Future<void> _signInWithGoogle(BuildContext context) async {
     try {
       await context.read<AuthService>().signInWithGoogle();
