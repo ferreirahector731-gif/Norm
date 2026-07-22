@@ -3,6 +3,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../features/ai/domain/chat_message_model.dart';
 import '../../features/notes/domain/note_model.dart';
+import '../../features/workspace/data/models/block_model.dart';
 
 class DatabaseService {
   static Isar? _isar;
@@ -21,7 +22,7 @@ class DatabaseService {
 
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
-      [NoteModelSchema, ChatMessageSchema],
+      [NoteModelSchema, ChatMessageSchema, BlockModelSchema],
       directory: dir.path,
     );
   }
@@ -117,6 +118,29 @@ class DatabaseService {
         note.lastSyncedAt = DateTime.now();
         await isar.noteModels.put(note);
       }
+    });
+  }
+
+  // ── Blocks ────────────────────────────────────────────
+
+  static Future<void> saveBlock(BlockModel block) async {
+    await isar.writeTxn(() async {
+      await isar.blockModels.put(block);
+    });
+  }
+
+  static Future<List<BlockModel>> getBlocksByParent(String parentId) async {
+    return isar.blockModels
+        .where()
+        .filter()
+        .parentIdEqualTo(parentId)
+        .sortByPosition()
+        .findAll();
+  }
+
+  static Future<void> deleteBlock(int id) async {
+    await isar.writeTxn(() async {
+      await isar.blockModels.delete(id);
     });
   }
 

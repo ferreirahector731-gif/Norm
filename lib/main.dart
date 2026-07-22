@@ -124,12 +124,17 @@ class MyApp extends StatelessWidget {
       );
     }
 
-    return MaterialApp(
-      title: 'Norm',
-      navigatorKey: _navigatorKey,
-      debugShowCheckedModeBanner: false,
-      theme: themeProvider.themeData,
-      home: home,
+    return ShortcutsWrapper(
+      onOpenCommandMenu: () => debugPrint('Cmd+K: comando global'),
+      onToggleSidebar: () => debugPrint('Cmd+B: toggle barra lateral'),
+      onNewNote: () => debugPrint('Cmd+N: nueva nota'),
+      child: MaterialApp(
+        title: 'Norm',
+        navigatorKey: _navigatorKey,
+        debugShowCheckedModeBanner: false,
+        theme: themeProvider.themeData,
+        home: home,
+      ),
     );
   }
 }
