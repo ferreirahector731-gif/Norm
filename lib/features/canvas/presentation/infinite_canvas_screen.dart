@@ -1,5 +1,3 @@
-import 'dart:ui' show Rect;
-
 import 'package:flutter/material.dart';
 
 import 'painters/canvas_grid_painter.dart';

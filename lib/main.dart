@@ -125,7 +125,7 @@ class MyApp extends StatelessWidget {
     }
 
     return ShortcutsWrapper(
-      onOpenCommandMenu: () => debugPrint('Cmd+K: comando global'),
+      onCommandPalette: () => debugPrint('Cmd+K: comando global'),
       onToggleSidebar: () => debugPrint('Cmd+B: toggle barra lateral'),
       onNewNote: () => debugPrint('Cmd+N: nueva nota'),
       child: MaterialApp(
