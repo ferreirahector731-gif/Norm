@@ -86,7 +86,7 @@ msix_config:
   display_name: Norm
   publisher_display_name: Norm
   identity_name: com.example.nota_ia_app
-  msix_version: 1.4.0.0
+  msix_version: 1.6.6.0
   logo_path: assets/icon/icon.png
 
 flutter_native_splash:

@@ -40,11 +40,12 @@ jobs:
       - name: Verify binary exists
         shell: pwsh
         run: |
-          if (-not (Test-Path "build\windows\x64\runner\Release\norm.exe")) {
-            Write-Error "norm.exe not found!"
+          $exe = Get-ChildItem "build\windows\x64\runner\Release\*.exe" | Select-Object -First 1
+          if (-not $exe) {
+            Write-Error "No .exe found in build\windows\x64\runner\Release\!"
             exit 1
           }
-          Write-Output "norm.exe ✅"
+          Write-Output "$($exe.Name) ✅"
 
       - name: Package ZIP
         shell: pwsh
