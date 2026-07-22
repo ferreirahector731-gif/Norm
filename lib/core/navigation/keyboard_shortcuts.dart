@@ -1,17 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-/// Wraps the app with global keyboard shortcuts.
 class ShortcutsWrapper extends StatelessWidget {
   final Widget child;
-  final VoidCallback onOpenCommandMenu;
+  final VoidCallback onCommandPalette;
   final VoidCallback onToggleSidebar;
   final VoidCallback onNewNote;
 
   const ShortcutsWrapper({
     super.key,
     required this.child,
-    required this.onOpenCommandMenu,
+    required this.onCommandPalette,
     required this.onToggleSidebar,
     required this.onNewNote,
   });
@@ -20,26 +19,14 @@ class ShortcutsWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
 
-    return Focus(
-      autofocus: true,
-      child: CallbackShortcuts(
-        bindings: {
-          SingleActivator(
-            LogicalKeyboardKey.keyK,
-            control: !isMacOS,
-            meta: isMacOS,
-          ): onOpenCommandMenu,
-          SingleActivator(
-            LogicalKeyboardKey.keyB,
-            control: !isMacOS,
-            meta: isMacOS,
-          ): onToggleSidebar,
-          SingleActivator(
-            LogicalKeyboardKey.keyN,
-            control: !isMacOS,
-            meta: isMacOS,
-          ): onNewNote,
-        },
+    return CallbackShortcuts(
+      bindings: <ShortcutActivator, VoidCallback>{
+        SingleActivator(LogicalKeyboardKey.keyK, meta: isMacOS, control: !isMacOS): onCommandPalette,
+        SingleActivator(LogicalKeyboardKey.keyB, meta: isMacOS, control: !isMacOS): onToggleSidebar,
+        SingleActivator(LogicalKeyboardKey.keyN, meta: isMacOS, control: !isMacOS): onNewNote,
+      },
+      child: Focus(
+        autofocus: true,
         child: child,
       ),
     );
