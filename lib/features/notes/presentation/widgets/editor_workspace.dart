@@ -631,6 +631,30 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
     try {
       await for (final chunk in engine.sendPromptStreaming(contextText)) {
         if (!mounted || _aiGenerationCancelled) return;
+
+        // Detectar error de conexión en el primer fragmento
+        if (!hasFirstChunk && chunk.contains('**[Error de conexión]**')) {
+          _loadingTimer?.cancel();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  chunk.replaceAll(RegExp(r'[*\[\]]'), '').trim(),
+                ),
+                backgroundColor: const Color(0xFFDC2626),
+                duration: const Duration(seconds: 6),
+                action: SnackBarAction(
+                  label: 'Cerrar',
+                  textColor: Colors.white,
+                  onPressed: () {},
+                ),
+              ),
+            );
+          }
+          _cancelAIContent();
+          return;
+        }
+
         buffer.write(chunk);
         _aiGeneratedContent = buffer.toString();
 

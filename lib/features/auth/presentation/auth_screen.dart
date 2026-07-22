@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/services/sync_manager.dart';
 import '../data/auth_service.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -115,6 +116,8 @@ class AuthScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
+    } else {
+      _onAuthenticated();
     }
   }
 
@@ -224,6 +227,7 @@ class AuthScreen extends StatelessWidget {
         } else {
           await authService.signInWithEmail(emailCtrl.text, passCtrl.text);
         }
+        _onAuthenticated();
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -235,5 +239,10 @@ class AuthScreen extends StatelessWidget {
 
     emailCtrl.dispose();
     passCtrl.dispose();
+  }
+
+  void _onAuthenticated() {
+    SyncManager().markAllLocalNotesDirty();
+    SyncManager().fullSync();
   }
 }

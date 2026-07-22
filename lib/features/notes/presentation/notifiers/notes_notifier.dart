@@ -1,5 +1,10 @@
-import 'package:flutter/foundation.dart';
+import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:file_picker/file_picker.dart';
+
+import '../../domain/markdown_converter.dart';
 import '../../domain/note_model.dart';
 import '../../../../core/database/database_service.dart';
 import '../../../../core/services/sync_manager.dart';
@@ -104,5 +109,68 @@ class NotesNotifier extends ChangeNotifier {
       _activeNote = _notes.isNotEmpty ? _notes.first : null;
     }
     notifyListeners();
+  }
+
+  // ── Export / Import ────────────────────────────
+
+  /// Exporta la nota activa como archivo .md usando el selector nativo.
+  Future<String?> exportCurrentNoteAsMarkdown() async {
+    final note = _activeNote;
+    if (note == null) return 'No hay una nota activa para exportar.';
+
+    try {
+      final md = MarkdownConverter.noteToMarkdown(note.title, note.contentJson);
+      final name = note.title.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+      final path = await FilePicker.platform.saveFile(
+        dialogTitle: 'Exportar nota como Markdown',
+        fileName: '$name.md',
+        type: FileType.custom,
+        allowedExtensions: ['md'],
+      );
+      if (path == null) return null; // usuario canceló
+
+      await File(path).writeAsString(md, encoding: utf8);
+      debugPrint('📄 Nota exportada a: $path');
+      return path;
+    } catch (e) {
+      debugPrint('⚠️ Error exportando nota: $e');
+      return 'Error al exportar: $e';
+    }
+  }
+
+  /// Importa uno o más archivos .md y crea notas en Isar.
+  /// Retorna el número de notas importadas o null si se canceló.
+  Future<int?> importMarkdownFiles() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        dialogTitle: 'Importar archivos Markdown',
+        type: FileType.custom,
+        allowedExtensions: ['md'],
+        allowMultiple: true,
+      );
+      if (result == null || result.files.isEmpty) return null;
+
+      int count = 0;
+      for (final file in result.files) {
+        final bytes = file.bytes ?? await File(file.path!).readAsBytes();
+        final content = utf8.decode(bytes);
+        final (title, body) = MarkdownConverter.parseMarkdown(content);
+        final contentJson = MarkdownConverter.plainTextToContentJson(body);
+
+        final note = NoteModel.create(
+          title: title,
+          contentJson: contentJson,
+        );
+        await DatabaseService.saveNote(note);
+        count++;
+      }
+
+      await loadNotes();
+      debugPrint('📥 $count nota(s) importada(s)');
+      return count;
+    } catch (e) {
+      debugPrint('⚠️ Error importando notas: $e');
+      return -1;
+    }
   }
 }

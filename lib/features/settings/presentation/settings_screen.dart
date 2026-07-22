@@ -21,6 +21,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     with SingleTickerProviderStateMixin {
   late AIProvider _aiProvider;
   late TextEditingController _apiKeyController;
+  late TextEditingController _ollamaUrlController;
+  late TextEditingController _ollamaModelController;
   bool _showApiKey = false;
   String _syncStatus = 'Inactivo';
   late AnimationController _syncSpinController;
@@ -36,6 +38,8 @@ class _SettingsScreenState extends State<SettingsScreen>
       duration: const Duration(milliseconds: 1200),
     );
     _apiKeyController = TextEditingController();
+    _ollamaUrlController = TextEditingController();
+    _ollamaModelController = TextEditingController();
     _loadConfig();
     _loadVersion();
     _loadMemoryRetention();
@@ -74,6 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen>
     setState(() {
       _aiProvider = config.provider;
       _apiKeyController.text = config.externalApiKey ?? '';
+      _ollamaUrlController.text = config.ollamaBaseUrl ?? 'http://localhost:11434';
+      _ollamaModelController.text = config.ollamaModel ?? 'llama3.2';
     });
   }
 
@@ -81,6 +87,8 @@ class _SettingsScreenState extends State<SettingsScreen>
   void dispose() {
     _syncSpinController.dispose();
     _apiKeyController.dispose();
+    _ollamaUrlController.dispose();
+    _ollamaModelController.dispose();
     SyncManager().isSyncingNotifier.removeListener(_onSyncChanged);
     super.dispose();
   }
@@ -109,12 +117,16 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   Future<void> _saveConfig() async {
+    final url = _ollamaUrlController.text.trim();
+    final model = _ollamaModelController.text.trim();
     await AIConfigService.save(
       AIConfig(
         provider: _aiProvider,
         externalApiKey: _apiKeyController.text.isNotEmpty
             ? _apiKeyController.text
             : null,
+        ollamaBaseUrl: url.isNotEmpty ? url : null,
+        ollamaModel: model.isNotEmpty ? model : null,
       ),
     );
   }
@@ -313,6 +325,15 @@ class _SettingsScreenState extends State<SettingsScreen>
           const SizedBox(height: 16),
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 250),
+            crossFadeState: _aiProvider == AIProvider.ollamaLocal
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            firstChild: _buildOllamaFields(context),
+            secondChild: const SizedBox.shrink(),
+          ),
+          const SizedBox(height: 12),
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 250),
             crossFadeState: _aiProvider == AIProvider.externalAPI
                 ? CrossFadeState.showFirst
                 : CrossFadeState.showSecond,
@@ -425,6 +446,87 @@ class _SettingsScreenState extends State<SettingsScreen>
             onChanged: (_) => _saveConfig(),
             decoration: InputDecoration(
               hintText: 'sk-...',
+              hintStyle: TextStyle(color: scheme.onSurfaceVariant.withOpacity(0.4)),
+              filled: true,
+              fillColor: scheme.surfaceContainerHigh.withOpacity(0.5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+            style: TextStyle(color: scheme.onSurface, fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOllamaFields(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: scheme.outlineVariant.withOpacity(0.25),
+          width: 0.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.dns, size: 16, color: scheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                'URL del servidor Ollama',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: scheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _ollamaUrlController,
+            onChanged: (_) => _saveConfig(),
+            decoration: InputDecoration(
+              hintText: 'http://localhost:11434',
+              hintStyle: TextStyle(color: scheme.onSurfaceVariant.withOpacity(0.4)),
+              filled: true,
+              fillColor: scheme.surfaceContainerHigh.withOpacity(0.5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ),
+            style: TextStyle(color: scheme.onSurface, fontSize: 14),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Icon(Icons.model_training, size: 16, color: scheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                'Modelo',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: scheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _ollamaModelController,
+            onChanged: (_) => _saveConfig(),
+            decoration: InputDecoration(
+              hintText: 'llama3.2',
               hintStyle: TextStyle(color: scheme.onSurfaceVariant.withOpacity(0.4)),
               filled: true,
               fillColor: scheme.surfaceContainerHigh.withOpacity(0.5),

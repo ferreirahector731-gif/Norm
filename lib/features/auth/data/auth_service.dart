@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
@@ -63,9 +65,12 @@ class AuthService {
       return 'Modo local: sin conexión a Supabase';
     }
     try {
+      // En desktop usamos PKCE sin redirectTo personalizado
+      // (Supabase SDK levanta un servidor local para el callback)
+      final isDesktop = Platform.isWindows || Platform.isLinux || Platform.isMacOS;
       await _supabase!.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: 'io.supabase.norm://login-callback/',
+        redirectTo: isDesktop ? null : 'io.supabase.norm://login-callback/',
       );
       _sessionMode = SessionMode.authenticated;
       final prefs = await SharedPreferences.getInstance();

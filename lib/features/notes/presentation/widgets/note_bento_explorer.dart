@@ -118,9 +118,65 @@ class _NoteBentoExplorerState extends State<NoteBentoExplorer> {
             tooltip: 'Nueva nota',
             onPressed: () => _showNewNoteChooser(context, notifier),
           ),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_horiz, color: scheme.onSurfaceVariant, size: 20),
+            tooltip: 'Más opciones',
+            onSelected: (value) => _handleMenuAction(context, notifier, value),
+            itemBuilder: (_) => [
+              const PopupMenuItem(value: 'export', child: _MenuRow(Icons.file_upload_outlined, 'Exportar nota como MD')),
+              const PopupMenuItem(value: 'import', child: _MenuRow(Icons.file_download_outlined, 'Importar archivos .md')),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _handleMenuAction(
+      BuildContext context, NotesNotifier notifier, String action) async {
+    switch (action) {
+      case 'export':
+        final result = await notifier.exportCurrentNoteAsMarkdown();
+        if (!mounted) return;
+        if (result == null) {
+          // usuario canceló
+        } else if (result.startsWith('Error')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result),
+              backgroundColor: const Color(0xFFDC2626),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Nota exportada a:\n$result'),
+              backgroundColor: const Color(0xFF16A34A),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      case 'import':
+        final count = await notifier.importMarkdownFiles();
+        if (!mounted) return;
+        if (count == null) {
+          // usuario canceló
+        } else if (count == -1) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Error al importar archivos. Revisa que sean .md válidos.'),
+              backgroundColor: Color(0xFFDC2626),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$count nota(s) importada(s) correctamente.'),
+              backgroundColor: const Color(0xFF16A34A),
+            ),
+          );
+        }
+    }
   }
 
   void _showNewNoteChooser(BuildContext context, NotesNotifier notifier) {
@@ -465,6 +521,24 @@ class _BentoCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _MenuRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _MenuRow(this.icon, this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: Theme.of(context).colorScheme.onSurface),
+        const SizedBox(width: 12),
+        Text(label),
+      ],
     );
   }
 }

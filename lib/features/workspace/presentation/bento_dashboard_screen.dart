@@ -65,9 +65,17 @@ class _BentoDashboardScreenState extends State<BentoDashboardScreen> {
     );
   }
 
-  void _openWhiteboard() {
+  Future<void> _openWhiteboard() async {
+    final note = NoteModel.create(
+      title: 'Lienzo ${DateTime.now().toString().substring(0, 16)}',
+      contentJson: '{"blocks":[]}',
+    );
+    await DatabaseService.saveNote(note);
+    if (!mounted) return;
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const InfiniteCanvasScreen()),
+      MaterialPageRoute(
+        builder: (_) => InfiniteCanvasScreen(note: note),
+      ),
     );
   }
 

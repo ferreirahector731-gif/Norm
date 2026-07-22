@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Gestor de sincronización en la nube.
-///
-/// Actualmente desactivado tras la migración de Supabase a Firebase.
-/// La sincronización remota se reimplementará en una versión futura.
+import '../../features/auth/data/auth_service.dart';
+import '../database/database_service.dart';
+import 'sync_repository.dart';
+
 class SyncManager {
   static final SyncManager _instance = SyncManager._();
   factory SyncManager() => _instance;
@@ -12,17 +13,88 @@ class SyncManager {
 
   bool _isSyncing = false;
   final ValueNotifier<bool> isSyncingNotifier = ValueNotifier(false);
-
-  /// Fecha de la última sincronización exitosa.
   DateTime? lastSyncAt;
 
-  void startListening() {}
+  SyncRepository? _repo;
 
-  void stopListening() {}
+  void init(SupabaseClient supabase, AuthService authService) {
+    _repo = SyncRepository(supabase, authService);
+  }
 
-  Future<void> syncPendingNotes() async {}
+  bool get _canSync => _repo != null;
 
-  Future<void> fetchRemoteChanges() async {}
+  Future<void> syncPendingNotes() async {
+    if (!_canSync) return;
+    if (_isSyncing) return;
+    _isSyncing = true;
+    isSyncingNotifier.value = true;
 
-  static void scheduleSync() {}
+    try {
+      await _repo!.syncDirtyNotes();
+      lastSyncAt = DateTime.now();
+    } catch (e) {
+      debugPrint('⚠️ SyncManager.syncPendingNotes error: $e');
+    }
+
+    _isSyncing = false;
+    isSyncingNotifier.value = false;
+  }
+
+  Future<void> fetchRemoteChanges() async {
+    if (!_canSync) return;
+    if (_isSyncing) return;
+    _isSyncing = true;
+    isSyncingNotifier.value = true;
+
+    try {
+      await _repo!.fetchRemoteChanges();
+      lastSyncAt = DateTime.now();
+    } catch (e) {
+      debugPrint('⚠️ SyncManager.fetchRemoteChanges error: $e');
+    }
+
+    _isSyncing = false;
+    isSyncingNotifier.value = false;
+  }
+
+  static void scheduleSync() {
+    _instance.syncPendingNotes();
+  }
+
+  /// Sincronización completa: sube cambios locales y descarga remotos.
+  Future<void> fullSync() async {
+    if (!_canSync) return;
+    if (_isSyncing) return;
+    _isSyncing = true;
+    isSyncingNotifier.value = true;
+
+    try {
+      // Primero subir cambios locales
+      await _repo!.syncDirtyNotes();
+      // Luego descargar cambios remotos
+      await _repo!.fetchRemoteChanges();
+      lastSyncAt = DateTime.now();
+    } catch (e) {
+      debugPrint('⚠️ SyncManager.fullSync error: $e');
+    }
+
+    _isSyncing = false;
+    isSyncingNotifier.value = false;
+  }
+
+  /// Marca todas las notas locales como dirty para forzar sync en próximo login.
+  Future<void> markAllLocalNotesDirty() async {
+    if (!_canSync) return;
+    try {
+      final notes = await DatabaseService.getAllNotes();
+      for (final note in notes) {
+        if (note.remoteId == null) {
+          note.isDirty = true;
+          await DatabaseService.saveNote(note);
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ SyncManager.markAllLocalNotesDirty error: $e');
+    }
+  }
 }

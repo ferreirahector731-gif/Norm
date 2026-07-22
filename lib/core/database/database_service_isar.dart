@@ -132,6 +132,15 @@ class DatabaseService {
     return isar.noteModels.get(id);
   }
 
+  /// Busca una nota por su remoteId UUID.
+  static Future<NoteModel?> getNoteByRemoteId(String remoteId) async {
+    return isar.noteModels
+        .where()
+        .filter()
+        .remoteIdEqualTo(remoteId)
+        .findFirst();
+  }
+
   /// Guarda una nota remota en Isar solo si es más reciente (Last-Write-Wins).
   static Future<void> upsertRemoteNote({
     required String remoteId,

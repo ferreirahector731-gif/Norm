@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../services/ollama_service.dart';
 
 enum AIProvider { localEmbedded, ollamaLocal, externalAPI }
 
@@ -13,12 +14,16 @@ class AIConfig {
   final String? externalApiKey;
   final String? externalEndpoint;
   final String? externalModel;
+  final String? ollamaBaseUrl;
+  final String? ollamaModel;
 
   const AIConfig({
     this.provider = AIProvider.ollamaLocal,
     this.externalApiKey,
     this.externalEndpoint,
     this.externalModel,
+    this.ollamaBaseUrl,
+    this.ollamaModel,
   });
 
   AIConfig copyWith({
@@ -26,12 +31,16 @@ class AIConfig {
     String? externalApiKey,
     String? externalEndpoint,
     String? externalModel,
+    String? ollamaBaseUrl,
+    String? ollamaModel,
   }) =>
       AIConfig(
         provider: provider ?? this.provider,
         externalApiKey: externalApiKey ?? this.externalApiKey,
         externalEndpoint: externalEndpoint ?? this.externalEndpoint,
         externalModel: externalModel ?? this.externalModel,
+        ollamaBaseUrl: ollamaBaseUrl ?? this.ollamaBaseUrl,
+        ollamaModel: ollamaModel ?? this.ollamaModel,
       );
 
   Map<String, dynamic> toJson() => {
@@ -39,6 +48,8 @@ class AIConfig {
         'externalApiKey': externalApiKey,
         'externalEndpoint': externalEndpoint,
         'externalModel': externalModel,
+        if (ollamaBaseUrl != null) 'ollamaBaseUrl': ollamaBaseUrl,
+        if (ollamaModel != null) 'ollamaModel': ollamaModel,
       };
 
   factory AIConfig.fromJson(Map<String, dynamic> json) => AIConfig(
@@ -46,6 +57,8 @@ class AIConfig {
         externalApiKey: json['externalApiKey'] as String?,
         externalEndpoint: json['externalEndpoint'] as String?,
         externalModel: json['externalModel'] as String?,
+        ollamaBaseUrl: json['ollamaBaseUrl'] as String?,
+        ollamaModel: json['ollamaModel'] as String?,
       );
 }
 
@@ -109,32 +122,20 @@ class AIEngineService {
   }
 
   Stream<String> _ollamaStreaming(String prompt) async* {
+    final config = AIConfigService.current;
+    final service = OllamaService(
+      baseUrl: config.ollamaBaseUrl ?? 'http://localhost:11434',
+      model: config.ollamaModel ?? 'llama3.2',
+    );
     try {
-      final client = HttpClient();
-      final request = await client.postUrl(
-        Uri.parse('http://localhost:11434/api/generate'),
-      );
-      request.headers.contentType = ContentType.json;
-      request.write(jsonEncode({
-        'model': 'llama3.2',
-        'prompt': '$systemPrompt\n\n$prompt',
-        'stream': true,
-      }));
-      final response = await request.close().timeout(
-        const Duration(seconds: 30),
-      );
-      await for (final raw in response.transform(utf8.decoder)) {
-        for (final line in raw.split('\n')) {
-          if (line.trim().isEmpty) continue;
-          try {
-            final parsed = jsonDecode(line);
-            final text = parsed['response'] as String? ?? '';
-            if (text.isNotEmpty) yield text;
-          } catch (_) {}
-        }
+      await for (final chunk in service.generateStream(
+        prompt: prompt,
+        systemPrompt: systemPrompt,
+      )) {
+        yield chunk;
       }
-    } catch (e) {
-      yield '[Ollama] Error de conexión: $e';
+    } finally {
+      service.dispose();
     }
   }
 

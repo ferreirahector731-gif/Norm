@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,11 +12,17 @@ import 'features/auth/data/auth_service.dart';
 import 'features/auth/presentation/auth_screen.dart';
 import 'features/workspace/presentation/workspace_screen.dart';
 import 'features/ai/domain/retention_service.dart';
+import 'core/services/sync_manager.dart';
 import 'features/notes/presentation/notifiers/notes_notifier.dart';
 import 'features/settings/services/settings_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    final impellerOn = PlatformDispatcher.instance.impellerEnabled;
+    debugPrint('🎨 Impeller en escritorio: ${impellerOn ? "ACTIVO ✅" : "INACTIVO — pasar --enable-impeller al build ⚠️"}');
+  }
 
   bool cloudOk = false;
 
@@ -57,6 +65,13 @@ void main() async {
   await authService.loadSession();
 
   await DatabaseService.initialize();
+
+  if (cloudOk) {
+    SyncManager().init(Supabase.instance.client, authService);
+    if (authService.isAuthenticated) {
+      SyncManager().fullSync();
+    }
+  }
 
   RetentionService().start();
   _syncRetentionAtStartup();
