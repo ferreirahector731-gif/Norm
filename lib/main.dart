@@ -9,6 +9,7 @@ import 'features/auth/data/auth_service.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/workspace/presentation/workspace_screen.dart';
 import 'features/ai/domain/retention_service.dart';
+import 'features/settings/services/settings_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +49,9 @@ void main() async {
     );
   };
 
+  await SettingsService.init();
   RetentionService().start();
+  _syncRetentionAtStartup();
 
   runApp(
     MultiProvider(
@@ -61,6 +64,17 @@ void main() async {
   );
 
   WidgetsBinding.instance.addPostFrameCallback((_) => _showBetaBannerIfFirstTime());
+}
+
+void _syncRetentionAtStartup() {
+  final retention = SettingsService.memoryRetention;
+  final map = <MemoryRetention, RetentionPeriod>{
+    MemoryRetention.oneWeek: RetentionPeriod.week,
+    MemoryRetention.oneMonth: RetentionPeriod.month,
+    MemoryRetention.threeMonths: RetentionPeriod.threeMonths,
+    MemoryRetention.forever: RetentionPeriod.never,
+  };
+  RetentionService().updatePeriod(map[retention] ?? RetentionPeriod.month);
 }
 
 Future<void> _showBetaBannerIfFirstTime() async {

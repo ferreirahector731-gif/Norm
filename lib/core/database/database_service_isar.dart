@@ -2,6 +2,7 @@ import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../features/ai/domain/chat_message_model.dart';
+import '../../features/ai/domain/semantic_context_model.dart';
 import '../../features/notes/domain/note_model.dart';
 import '../../features/workspace/data/models/block_model.dart';
 
@@ -22,7 +23,7 @@ class DatabaseService {
 
     final dir = await getApplicationDocumentsDirectory();
     _isar = await Isar.open(
-      [NoteModelSchema, ChatMessageSchema, BlockModelSchema],
+      [NoteModelSchema, ChatMessageSchema, BlockModelSchema, SemanticContextSchema],
       directory: dir.path,
     );
   }
@@ -182,6 +183,49 @@ class DatabaseService {
           .findAll();
       if (ids.isEmpty) return 0;
       return isar.chatMessages.deleteAll(ids);
+    });
+  }
+
+  // ── Semantic Contexts ─────────────────────────────────
+
+  static Future<void> saveSemanticContext(SemanticContext ctx) async {
+    ctx.updatedAt = DateTime.now();
+    await isar.writeTxn(() async {
+      await isar.semanticContexts.put(ctx);
+    });
+  }
+
+  static Future<SemanticContext?> getSemanticContext(String contextKey) async {
+    return isar.semanticContexts
+        .where()
+        .filter()
+        .contextKeyEqualTo(contextKey)
+        .findFirst();
+  }
+
+  static Future<List<SemanticContext>> getAllSemanticContexts() async {
+    return isar.semanticContexts.where().findAll();
+  }
+
+  static Future<void> deleteSemanticContext(int id) async {
+    await isar.writeTxn(() async {
+      await isar.semanticContexts.delete(id);
+    });
+  }
+
+  /// Purga contextos semánticos creados antes de [cutoff].
+  /// Si [cutoff] es null, no purga nada.
+  static Future<int> purgeOldSemanticContexts(DateTime? cutoff) async {
+    if (cutoff == null) return 0;
+    return isar.writeTxn<int>(() async {
+      final ids = await isar.semanticContexts
+          .where()
+          .filter()
+          .createdAtLessThan(cutoff)
+          .idProperty()
+          .findAll();
+      if (ids.isEmpty) return 0;
+      return isar.semanticContexts.deleteAll(ids);
     });
   }
 }

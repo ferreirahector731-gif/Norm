@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../ai/domain/ai_config.dart';
 import '../../../core/services/sync_manager.dart';
+import '../services/settings_service.dart';
+import '../../ai/domain/retention_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -24,6 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen>
   late AnimationController _syncSpinController;
   String _appVersion = '';
   String _buildNumber = '';
+  MemoryRetention _memoryRetention = MemoryRetention.oneMonth;
 
   @override
   void initState() {
@@ -35,6 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     _apiKeyController = TextEditingController();
     _loadConfig();
     _loadVersion();
+    _loadMemoryRetention();
     SyncManager().isSyncingNotifier.addListener(_onSyncChanged);
   }
 
@@ -79,6 +83,29 @@ class _SettingsScreenState extends State<SettingsScreen>
     _apiKeyController.dispose();
     SyncManager().isSyncingNotifier.removeListener(_onSyncChanged);
     super.dispose();
+  }
+
+  Future<void> _loadMemoryRetention() async {
+    setState(() {
+      _memoryRetention = SettingsService.memoryRetention;
+    });
+  }
+
+  Future<void> _onMemoryRetentionChanged(MemoryRetention value) async {
+    setState(() => _memoryRetention = value);
+    await SettingsService.setMemoryRetention(value);
+    _syncRetentionToCleanup(value);
+  }
+
+  void _syncRetentionToCleanup(MemoryRetention value) {
+    final map = <MemoryRetention, RetentionPeriod>{
+      MemoryRetention.oneWeek: RetentionPeriod.week,
+      MemoryRetention.oneMonth: RetentionPeriod.month,
+      MemoryRetention.threeMonths: RetentionPeriod.threeMonths,
+      MemoryRetention.forever: RetentionPeriod.never,
+    };
+    final period = map[value] ?? RetentionPeriod.month;
+    RetentionService().updatePeriod(period);
   }
 
   Future<void> _saveConfig() async {
@@ -143,6 +170,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 _buildThemeSection(context),
                                 const SizedBox(height: 32),
                                 _buildAISection(context),
+                                const SizedBox(height: 32),
+                                _buildMemorySection(context),
                                 const SizedBox(height: 32),
                                 _buildSyncSection(context),
                                 const SizedBox(height: 32),
@@ -408,6 +437,105 @@ class _SettingsScreenState extends State<SettingsScreen>
             style: TextStyle(color: scheme.onSurface, fontSize: 14),
           ),
         ],
+      ),
+    );
+  }
+
+  // ── Memoria IA ──────────────────────────────────
+
+  Widget _buildMemorySection(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return _buildSection(
+      context,
+      title: 'MEMORIA DE IA',
+      icon: Icons.memory_outlined,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 4),
+          ...MemoryRetention.values.map((r) => _retentionOption(r)),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: scheme.primary.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: scheme.primary.withOpacity(0.15),
+                width: 0.5,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.lock_outline, size: 14, color: scheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Todo el contexto se almacena localmente en tu dispositivo. '
+                    'Ningún dato de conversación sale de tu máquina a menos que '
+                    'actives explícitamente el modo de búsqueda enriquecida.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: scheme.onSurfaceVariant.withOpacity(0.7),
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _retentionOption(MemoryRetention retention) {
+    final scheme = Theme.of(context).colorScheme;
+    final isSelected = _memoryRetention == retention;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: GestureDetector(
+        onTap: () => _onMemoryRetentionChanged(retention),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? scheme.primary.withOpacity(0.12)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: isSelected
+                  ? scheme.primary.withOpacity(0.4)
+                  : scheme.outlineVariant.withOpacity(0.15),
+              width: isSelected ? 1.5 : 0.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isSelected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                size: 18,
+                color: isSelected ? scheme.primary : scheme.outline,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                retention.label,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isSelected ? scheme.onSurface : scheme.onSurfaceVariant,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
