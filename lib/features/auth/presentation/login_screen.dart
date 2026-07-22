@@ -53,15 +53,13 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  // Autenticación con Firebase + Google mediante OAuth2 oficial.
+  // Autenticación con Supabase + Google mediante OAuth2 oficial.
   Future<void> _signInWithGoogle(BuildContext context) async {
-    try {
-      await context.read<AuthService>().signInWithGoogle();
-    } catch (e) {
-      if (!context.mounted) return;
+    final ok = await context.read<AuthService>().signInWithGoogle();
+    if (!ok && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al iniciar sesión: $e'),
+          content: const Text('Error al iniciar sesión con Google'),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),

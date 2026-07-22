@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient, User, AuthResponse;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthService {
@@ -10,11 +10,16 @@ class AuthService {
 
   User? get currentUser => _supabase.auth.currentUser;
 
-  Future<void> signInWithGoogle() async {
-    await _supabase.auth.signInWithOAuth(
-      OAuthProvider.google,
-      redirectTo: kIsWeb ? null : 'io.supabase.flutter://callback',
-    );
+  Future<bool> signInWithGoogle() async {
+    try {
+      await _supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
+      );
+      return true;
+    } catch (e) {
+      debugPrint('Error en signInWithGoogle: $e');
+      return false;
+    }
   }
 
   Future<AuthResponse> signInWithEmail(String email, String password) async {
