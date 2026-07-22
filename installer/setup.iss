@@ -1,66 +1,25 @@
-; Script de Inno Setup para Nota IA
-; Requisitos: Inno Setup 6+ (https://jrsoftware.org/isdl.php)
-;
-; Instrucciones:
-;   1. Compila Nota IA: flutter build windows --release
-;   2. Abre este archivo en Inno Setup Compiler
-;   3. Build → Compile (Ctrl+F9)
-;   4. El instalador se generará en installer\Output\
-
-#define MyAppName "Norm"
-#define MyAppVersion "1.6.6"
-#define MyAppPublisher "Creative Thinker"
-#define MyAppURL "https://norm.app"
-#define MyAppExeName "nota_ia_app.exe"
-
 [Setup]
-AppId={{B8F4A3D2-1C5E-4A7B-9D6F-8E2C1A3B5D7F}
-AppName={#MyAppName}
-AppVersion={#MyAppVersion}
-AppPublisher={#MyAppPublisher}
-AppPublisherURL={#MyAppURL}
-AppSupportURL={#MyAppURL}/support
-AppUpdatesURL={#MyAppURL}/download
-DefaultDirName={autopf}\{#MyAppName}
-DefaultGroupName={#MyAppName}
-AllowNoIcons=yes
-OutputDir=Output
-OutputBaseFilename=Norm_Setup_v{#MyAppVersion}
-Compression=lzma2/ultra
+AppId={{C7896C7A-3B64-47B2-B111-A5C0E2B8E5F9}
+AppName=Norm
+AppVersion=1.6.6
+AppPublisher=Norm
+DefaultDirName={autopf}\Norm
+DefaultGroupName=Norm
+OutputDir=installer\Output
+OutputBaseFilename=Norm_v1.6.6_Setup
+Compression=lzma
 SolidCompression=yes
-WizardStyle=modern
-DisableProgramGroupPage=yes
-DisableDirPage=auto
-PrivilegesRequiredOverridesAllowed=dialog
+SetupIconFile=windows\runner\resources\app_icon.ico
 
-; Elimina instalaciones previas antes de instalar
-[InstallDelete]
-Type: filesandordirs; Name: "{app}\*"
-
-; Archivos a incluir (desde build/windows/x64/runner/Release/)
-[Files]
-Source: "..\build\windows\x64\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\x64\runner\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
-
-; Accesos directos
-[Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-
-; Tarea opcional: icono en escritorio
 [Tasks]
-Name: "desktopicon"; Description: "Crear un acceso directo en el escritorio"; GroupDescription: "Accesos directos:"; Flags: checkedbydefault
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
-; Ejecutar la app después de instalar
+[Files]
+Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+[Icons]
+Name: "{group}\Norm"; Filename: "{app}\nota_ia_app.exe"
+Name: "{autodesktop}\Norm"; Filename: "{app}\nota_ia_app.exe"; Tasks: desktopicon
+
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Ejecutar {#MyAppName}"; Flags: nowait postinstall skipifsilent
-
-; Desinstalación limpia
-[UninstallDelete]
-Type: filesandordirs; Name: "{app}"
-Type: dirifempty; Name: "{app}"
-
-; Personalización del mensaje de despedida
-[Messages]
-FinishedLabel=La instalación de %1 se ha completado. Puedes ejecutar la aplicación usando el acceso directo creado.
+Filename: "{app}\nota_ia_app.exe"; Description: "{cm:LaunchProgram,Norm}"; Flags: nowait postinstall skipifsilent
