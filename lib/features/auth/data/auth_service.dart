@@ -10,15 +10,16 @@ class AuthService {
 
   User? get currentUser => _supabase.auth.currentUser;
 
-  Future<bool> signInWithGoogle() async {
+  Future<String?> signInWithGoogle() async {
     try {
       await _supabase.auth.signInWithOAuth(
         OAuthProvider.google,
+        redirectTo: 'io.supabase.norm://login-callback/',
       );
-      return true;
-    } catch (e) {
-      debugPrint('Error en signInWithGoogle: $e');
-      return false;
+      return null;
+    } catch (e, stackTrace) {
+      debugPrint('Error Supabase: $e\n$stackTrace');
+      return e.toString();
     }
   }
 

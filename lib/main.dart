@@ -11,13 +11,17 @@ import 'features/ai/domain/retention_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    await Supabase.initialize(
-      url: const String.fromEnvironment('SUPABASE_URL'),
-      anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
-    );
-  } catch (e) {
-    debugPrint('Error al inicializar Supabase: $e');
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
+  if (supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
+    try {
+      await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
+    } catch (e) {
+      debugPrint('Error al inicializar Supabase: $e');
+    }
+  } else {
+    debugPrint('⚠️ SUPABASE_URL o SUPABASE_ANON_KEY no definidas — auth desactivado');
   }
 
   RetentionService().start();
