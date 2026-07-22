@@ -2,17 +2,32 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthService {
-  final SupabaseClient _supabase = Supabase.instance.client;
+  final bool isCloudEnabled;
+  final SupabaseClient? _supabase;
 
-  Stream<User?> get authStateStream => _supabase.auth.onAuthStateChange.map(
-    (data) => data.session?.user,
-  );
+  AuthService({this.isCloudEnabled = false})
+      : _supabase = isCloudEnabled ? Supabase.instance.client : null;
 
-  User? get currentUser => _supabase.auth.currentUser;
+  Stream<User?> get authStateStream {
+    if (!isCloudEnabled || _supabase == null) {
+      return Stream.value(null);
+    }
+    return _supabase!.auth.onAuthStateChange.map(
+      (data) => data.session?.user,
+    );
+  }
+
+  User? get currentUser {
+    if (!isCloudEnabled || _supabase == null) return null;
+    return _supabase!.auth.currentUser;
+  }
 
   Future<String?> signInWithGoogle() async {
+    if (!isCloudEnabled || _supabase == null) {
+      return 'Modo local: sin conexión a Supabase';
+    }
     try {
-      await _supabase.auth.signInWithOAuth(
+      await _supabase!.auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: 'io.supabase.norm://login-callback/',
       );
@@ -24,14 +39,21 @@ class AuthService {
   }
 
   Future<AuthResponse> signInWithEmail(String email, String password) async {
-    return _supabase.auth.signInWithPassword(email: email, password: password);
+    if (!isCloudEnabled || _supabase == null) {
+      throw Exception('Modo local: sin conexión a Supabase');
+    }
+    return _supabase!.auth.signInWithPassword(email: email, password: password);
   }
 
   Future<AuthResponse> signUpWithEmail(String email, String password) async {
-    return _supabase.auth.signUp(email: email, password: password);
+    if (!isCloudEnabled || _supabase == null) {
+      throw Exception('Modo local: sin conexión a Supabase');
+    }
+    return _supabase!.auth.signUp(email: email, password: password);
   }
 
   Future<void> signOut() async {
-    await _supabase.auth.signOut();
+    if (!isCloudEnabled || _supabase == null) return;
+    await _supabase!.auth.signOut();
   }
 }

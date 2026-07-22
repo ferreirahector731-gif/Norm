@@ -11,18 +11,40 @@ import 'features/ai/domain/retention_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-  const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  bool cloudOk = false;
 
-  if (supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
-    try {
-      await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
-    } catch (e) {
-      debugPrint('Error al inicializar Supabase: $e');
+  try {
+    const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+    const supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
+    if (supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
+      await Supabase.initialize(
+        url: supabaseUrl,
+        anonKey: supabaseAnonKey,
+      ).timeout(const Duration(seconds: 3));
+      cloudOk = true;
     }
-  } else {
-    debugPrint('⚠️ SUPABASE_URL o SUPABASE_ANON_KEY no definidas — auth desactivado');
+  } catch (e) {
+    debugPrint(
+        'Advertencia: Supabase no se pudo inicializar ($e). '
+        'La app arrancará en modo local.');
   }
+
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Material(
+      color: const Color(0xFF0B0B0F),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(
+            'Algo salió mal.\nReinicia la app o contacta a soporte.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white70, fontSize: 16),
+          ),
+        ),
+      ),
+    );
+  };
 
   RetentionService().start();
 
@@ -30,7 +52,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        Provider(create: (_) => AuthService()),
+        Provider(create: (_) => AuthService(isCloudEnabled: cloudOk)),
       ],
       child: const MyApp(),
     ),
@@ -75,12 +97,11 @@ class MyApp extends StatelessWidget {
     final themeProvider = context.watch<ThemeProvider>();
     final authService = context.read<AuthService>();
 
-    return MaterialApp(
-      title: 'Norm',
-      navigatorKey: _navigatorKey,
-      debugShowCheckedModeBanner: false,
-      theme: themeProvider.themeData,
-      home: StreamBuilder<User?>(
+    Widget home;
+    if (!authService.isCloudEnabled) {
+      home = const WorkspaceScreen();
+    } else {
+      home = StreamBuilder<User?>(
         stream: authService.authStateStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -98,7 +119,15 @@ class MyApp extends StatelessWidget {
 
           return const LoginScreen();
         },
-      ),
+      );
+    }
+
+    return MaterialApp(
+      title: 'Norm',
+      navigatorKey: _navigatorKey,
+      debugShowCheckedModeBanner: false,
+      theme: themeProvider.themeData,
+      home: home,
     );
   }
 }
