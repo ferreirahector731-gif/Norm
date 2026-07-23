@@ -1,0 +1,24 @@
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+preferred-supported-locales:
+  - en
+  - es
+  - fr
+  - de
+  - it
+  - pt
+  - ru
+  - ja
+  - ko
+  - zh
+  - ar
+  - hi
+  - tr
+  - pl
+  - nl
+  - sv
+  - da
+  - fi
+  - nb
+  - cs

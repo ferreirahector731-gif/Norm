@@ -1,35 +1,65 @@
 # Norm.
 
-> **Tu espacio. Tus reglas.**  
-> *Tu mente no tiene límites. Tu herramienta tampoco.*
+[![CI](https://github.com/ferreirahector731-gif/Norm/actions/workflows/build.yml/badge.svg)](https://github.com/ferreirahector731-gif/Norm/actions/workflows/build.yml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Flutter](https://img.shields.io/badge/Flutter-3.29-02569B?logo=flutter)](https://flutter.dev)
+[![Platforms](https://img.shields.io/badge/Platform-Windows%20|%20Linux%20|%20macOS%20|%20Android%20|%20iOS-blue)](#)
+[![Local-First](https://img.shields.io/badge/Architecture-Local--First-success)](#)
+
+> **Your space. Your rules.**  
+> *Your mind has no limits. Your tool shouldn't either.*
 
 ---
 
-## 🚀 ¿Qué es Norm.?
+## Overview
 
-**Norm.** es la suite multimodal y local-first que unifica tu conocimiento en un lienzo infinito a 120 FPS. Diseñada bajo la premisa de que **nadie decide por vos, ni siquiera la app**, elimina la necesidad de pagar múltiples suscripciones al integrar 7 módulos funcionales en un único espacio fluido:
+**Norm.** is a multimodal, local-first productivity suite that unifies your knowledge on a single infinite canvas at 120 FPS. Built on the principle that **no one decides for you — not even the app**, it eliminates the need for multiple subscriptions by integrating 7 native modules into a single fluid workspace:
 
-* 📝 **Note**: Editor Markdown de alta velocidad para la captura rápida de ideas.
-* 📄 **Doc**: Documentación estructurada y bloques de redacción flexibles.
-* 🎨 **Canvas**: Pizarrón infinito para interconectar conceptos, notas y objetos visuales.
-* 📊 **Sheet**: Bases de datos líquidas y tablas proyectables al instante en el lienzo.
-* 📈 **Chart**: Gráficos dinámicos e interactivos sincronizados con tus datos.
-* ✅ **Task**: Gestión integral de tareas y seguimiento de proyectos.
-* 🔗 **Link**: Mapas de conocimiento y enlaces bidireccionales automáticos.
-
----
-
-## 🛡️ Soberanía Total de Datos (Local-First)
-
-* **Privacidad Absoluta**: Tus archivos residen localmente en tu dispositivo mediante el motor de base de datos **Isar**, garantizando un rendimiento instantáneo.
-* **Cero Bloqueo (Zero Vendor Lock-in)**: Tu información te pertenece en formatos abiertos y accesibles.
-* **Sin Ataduras**: Funciona de forma totalmente independiente sin requerir conexiones forzadas a la nube de terceros.
+| Module | Purpose |
+|---|---|
+| **Note** | High-speed Markdown editor for rapid idea capture |
+| **Doc** | Structured documentation with flexible rich-text blocks |
+| **Canvas** | Infinite whiteboard to interconnect concepts, notes, and visual objects |
+| **Sheet** | Liquid databases and tables that project instantly onto the canvas |
+| **Chart** | Dynamic, interactive graphs live-synced to your data |
+| **Task** | Full project management with NLP-powered task entry |
+| **Link** | Knowledge graphs with automatic bidirectional linking and backlink discovery |
 
 ---
 
-## 🏛️ Licenciamiento y Protección Legal (AGPLv3 / Dual-Licensing)
+## Architecture & Philosophy
 
-Para proteger el esfuerzo de desarrollo y garantizar la libertad del ecosistema, **Norm.** se distribuye bajo un modelo de licenciamiento dual:
+### 🔒 Absolute Data Sovereignty (Local-First)
 
-* **Open-Core / AGPLv3 (Comunidad)**: Si alguien toma el código base, lo modifica y crea mejoras, la licencia establece legalmente que esas contribuciones deben compartirse de manera transparente con la comunidad. Nos ayudamos entre todos y las innovaciones quedan disponibles por ley para el proyecto principal.
-* **Licencia Comercial y Términos de Uso Justo (Empresas)**: Para usos propietarios o empresariales cerrados. Queda estrictamente prohibido utilizar este software para prácticas de monopolio corporativo, empaquetado opaco o acciones que busquen competir deslealmente en contra del proyecto original.
+- **Zero-trust privacy**: All data lives locally on your device via the **Isar** embedded database engine — no cloud gateways, no telemetry, no surveillance.
+- **Vendor lock-in impossible**: Your information is stored in open, accessible formats. Export to Markdown, JSON, CSV, or compressed archives with a single click.
+- **Offline by default**: Fully functional with zero network dependencies. Optional Supabase sync for cross-device workflows when you choose.
+
+### ⚡ Liquid Data — Cross-Module Polymorphism
+
+Every piece of content can be referenced, embedded, or projected into any other module in real time:
+
+- A **Sheet row** instantiates as an interactive **Chart** series or a **Task** item
+- A **Canvas node** embeds a live **Doc** fragment or **Note**
+- A **Link** automatically discovers backlinks across all 7 modules
+- All mutations propagate atomically at **120 FPS** through the `LiquidDataSync` engine
+
+### 🔄 Universal Import / Export (Zero-Friction Migration)
+
+| Source | Format | Preservation |
+|---|---|---|
+| **Obsidian** | `.md` vault | YAML frontmatter, `[[wikilinks]]`, `#tags` |
+| **Notion** | Markdown + CSV export | Databases → Sheet, pages → Doc/Note |
+| **Office** | CSV, JSON, OPML | Raw import with automatic type detection |
+| **Export** | Markdown, JSON (flat/gzip), CSV | Full metadata + frontmatter |
+
+---
+
+## Licensing (AGPLv3 / Dual-Licensing)
+
+To protect development effort and guarantee ecosystem freedom, **Norm.** is distributed under a dual-licensing model:
+
+- **AGPLv3 (Community)**: If you modify, extend, or improve the codebase, the license legally requires that those contributions be shared transparently with the community. Innovations flow back to the main project by law.
+- **Commercial / Fair-Use (Enterprise)**: Proprietary or closed-source use cases. Strictly prohibits monopolistic practices, opaque repackaging, or unfair competition against the original project.
+
+See [`LICENSE`](./LICENSE) for the full AGPLv3 terms.
