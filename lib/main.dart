@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -18,11 +16,6 @@ import 'features/settings/services/settings_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    final impellerOn = PlatformDispatcher.instance.impellerEnabled;
-    debugPrint('🎨 Impeller en escritorio: ${impellerOn ? "ACTIVO ✅" : "INACTIVO — pasar --enable-impeller al build ⚠️"}');
-  }
 
   bool cloudOk = false;
 

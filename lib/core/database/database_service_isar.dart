@@ -61,13 +61,12 @@ class DatabaseService {
     } catch (e) {
       debugPrint('❌ Isar initialization failed: $e');
 
-      // Fallback: intentar eliminar y recrear la instancia
+      // Fallback: cerrar y recrear la instancia
       try {
         final dir = await getApplicationDocumentsDirectory();
-        await Isar.deleteInstance(
-          name: 'default',
-          directory: dir.path,
-        );
+        if (_isar != null) {
+          await _isar!.close(deleteFromDisk: true);
+        }
         _isar = await Isar.open(
           [NoteModelSchema, ChatMessageSchema, BlockModelSchema, SemanticContextSchema],
           directory: dir.path,

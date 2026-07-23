@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 
+import 'note_document_codec.dart';
+
 class MarkdownConverter {
   /// Convierte el [contentJson] de AppFlowy y [title] a una cadena Markdown.
   static String noteToMarkdown(String title, String contentJson) {
