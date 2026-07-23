@@ -1,30 +1,190 @@
 import 'package:flutter/material.dart';
 
-enum ThemeModeType { light, dark, sepia }
+enum NormThemeType {
+  proDark,
+  nordicWoods,
+  espressoSepia,
+  deepSpace,
+  matchaZen,
+  classicSlate,
+  terminalCode,
+  notionFluid,
+}
+
+class NormTheme {
+  final String id;
+  final String name;
+  final String description;
+  final Color canvasBg;
+  final Color cardBg;
+  final Color borderColor;
+  final Color textMain;
+  final Color textSub;
+  final Color accent;
+  final Color accentGlow;
+  final double cardRadius;
+  final double liquidBlur;
+  final Brightness brightness;
+  final String? fontFamily;
+
+  const NormTheme({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.canvasBg,
+    required this.cardBg,
+    required this.borderColor,
+    required this.textMain,
+    required this.textSub,
+    required this.accent,
+    required this.accentGlow,
+    required this.cardRadius,
+    required this.liquidBlur,
+    required this.brightness,
+    this.fontFamily,
+  });
+
+  double get innerRadius => cardRadius * 0.75;
+  double get innerMostRadius => cardRadius * 0.5;
+}
+
+const _normThemes = <NormThemeType, NormTheme>{
+  NormThemeType.proDark: NormTheme(
+    id: 'pro-dark',
+    name: 'Pro Dark',
+    description: 'Linear / Vercel Liquid',
+    canvasBg: Color(0xFF080710),
+    cardBg: Color(0xFF12111A),
+    borderColor: Color(0xFF232230),
+    textMain: Color(0xFFF4F4F8),
+    textSub: Color(0xFF8E8D9F),
+    accent: Color(0xFF5E6AD2),
+    accentGlow: Color(0x665E6AD2),
+    cardRadius: 14,
+    liquidBlur: 20,
+    brightness: Brightness.dark,
+  ),
+  NormThemeType.nordicWoods: NormTheme(
+    id: 'nordic-woods',
+    name: 'Nordic Woods',
+    description: 'Minimal Nord Soft',
+    canvasBg: Color(0xFF2E3440),
+    cardBg: Color(0xFF3B4252),
+    borderColor: Color(0xFF4C566A),
+    textMain: Color(0xFFECEFF4),
+    textSub: Color(0xFFD8DEE9),
+    accent: Color(0xFF88C0D0),
+    accentGlow: Color(0x6688C0D0),
+    cardRadius: 12,
+    liquidBlur: 16,
+    brightness: Brightness.dark,
+  ),
+  NormThemeType.espressoSepia: NormTheme(
+    id: 'espresso-sepia',
+    name: 'Espresso Sepia',
+    description: 'Lectura Cálida',
+    canvasBg: Color(0xFF151211),
+    cardBg: Color(0xFF1E1A18),
+    borderColor: Color(0xFF332D29),
+    textMain: Color(0xFFF2E8DF),
+    textSub: Color(0xFFA89B91),
+    accent: Color(0xFFD4A373),
+    accentGlow: Color(0x66D4A373),
+    cardRadius: 16,
+    liquidBlur: 20,
+    brightness: Brightness.dark,
+  ),
+  NormThemeType.deepSpace: NormTheme(
+    id: 'deep-space',
+    name: 'Deep Space',
+    description: 'GitHub Dark Monochrome',
+    canvasBg: Color(0xFF0D1117),
+    cardBg: Color(0xFF161B22),
+    borderColor: Color(0xFF30363D),
+    textMain: Color(0xFFF0F6FC),
+    textSub: Color(0xFF8B949E),
+    accent: Color(0xFF238636),
+    accentGlow: Color(0x66238636),
+    cardRadius: 12,
+    liquidBlur: 16,
+    brightness: Brightness.dark,
+  ),
+  NormThemeType.matchaZen: NormTheme(
+    id: 'matcha-zen',
+    name: 'Matcha Zen',
+    description: 'Claro Anti-Fatiga',
+    canvasBg: Color(0xFFF3F4F0),
+    cardBg: Color(0xFFFFFFFF),
+    borderColor: Color(0xFFE2E4DC),
+    textMain: Color(0xFF1C2826),
+    textSub: Color(0xFF52605D),
+    accent: Color(0xFF52796F),
+    accentGlow: Color(0x4D52796F),
+    cardRadius: 16,
+    liquidBlur: 12,
+    brightness: Brightness.light,
+  ),
+  NormThemeType.classicSlate: NormTheme(
+    id: 'classic-slate',
+    name: 'Classic Slate',
+    description: 'Corporativo / 2D Flat',
+    canvasBg: Color(0xFF0F172A),
+    cardBg: Color(0xFF1E293B),
+    borderColor: Color(0xFF334155),
+    textMain: Color(0xFFF8FAFC),
+    textSub: Color(0xFF94A3B8),
+    accent: Color(0xFF38BDF8),
+    accentGlow: Color(0x6638BDF8),
+    cardRadius: 4,
+    liquidBlur: 0,
+    brightness: Brightness.dark,
+  ),
+  NormThemeType.terminalCode: NormTheme(
+    id: 'terminal-code',
+    name: 'Terminal Code',
+    description: 'Console / Hacker Mono',
+    canvasBg: Color(0xFF05080A),
+    cardBg: Color(0xFF0B1015),
+    borderColor: Color(0xFF1E2D3D),
+    textMain: Color(0xFF34D399),
+    textSub: Color(0xFF10B981),
+    accent: Color(0xFF34D399),
+    accentGlow: Color(0x6634D399),
+    cardRadius: 2,
+    liquidBlur: 0,
+    brightness: Brightness.dark,
+    fontFamily: 'monospace',
+  ),
+  NormThemeType.notionFluid: NormTheme(
+    id: 'notion-fluid',
+    name: 'Notion Fluid',
+    description: 'Espacial Indigo-Cian',
+    canvasBg: Color(0xFF0B0F17),
+    cardBg: Color(0xCC111827),
+    borderColor: Color(0x4D6366F1),
+    textMain: Color(0xFFF3F4F6),
+    textSub: Color(0xFF9CA3AF),
+    accent: Color(0xFF38BDF8),
+    accentGlow: Color(0x8038BDF8),
+    cardRadius: 16,
+    liquidBlur: 24,
+    brightness: Brightness.dark,
+  ),
+};
 
 class ThemeProvider extends ChangeNotifier {
-  ThemeModeType _currentTheme = ThemeModeType.dark;
+  NormThemeType _currentTheme = NormThemeType.proDark;
 
-  ThemeModeType get currentTheme => _currentTheme;
+  NormThemeType get currentTheme => _currentTheme;
 
-  void setTheme(ThemeModeType theme) {
-    _currentTheme = theme;
+  NormTheme get theme => _normThemes[_currentTheme]!;
+
+  void setTheme(NormThemeType type) {
+    _currentTheme = type;
     notifyListeners();
   }
 
-  ThemeData get themeData {
-    switch (_currentTheme) {
-      case ThemeModeType.light:
-        return _lightTheme;
-      case ThemeModeType.sepia:
-        return _sepiaTheme;
-      case ThemeModeType.dark:
-      default:
-        return _darkTheme;
-    }
-  }
-
-  static const _accentBlue = Color(0xFF3B82F6);
+  ThemeData get themeData => _buildThemeData(theme);
 
   static final TextTheme _baseTextTheme = TextTheme(
     displayLarge: const TextStyle(letterSpacing: -1.5, height: 1.2),
@@ -44,161 +204,88 @@ class ThemeProvider extends ChangeNotifier {
     labelSmall: TextStyle(letterSpacing: 0.8, height: 1.5, fontWeight: FontWeight.w500),
   );
 
-  static final ThemeData _darkTheme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.dark,
-    scaffoldBackgroundColor: const Color(0xFF090D16),
-    colorScheme: const ColorScheme.dark(
-      surface: Color(0xFF090D16),
-      surfaceContainerLow: Color(0xFF111622),
-      surfaceContainer: Color(0xFF131B2E),
-      surfaceContainerHigh: Color(0xFF1A2340),
-      surfaceContainerHighest: Color(0xFF222D4A),
-      primary: _accentBlue,
-      onPrimary: Color(0xFFFFFFFF),
-      primaryContainer: Color(0xFF1E3A6B),
-      onPrimaryContainer: Color(0xFFD6E4FF),
-      secondary: Color(0xFF60A5FA),
-      onSecondary: Color(0xFF0F1A35),
-      secondaryContainer: Color(0xFF1A3361),
-      onSecondaryContainer: Color(0xFFD6E4FF),
-      tertiary: Color(0xFF38BDF8),
-      error: Color(0xFFEF4444),
-      onError: Color(0xFFFFFFFF),
-      surfaceTint: _accentBlue,
-      outline: Color(0xFF2D3A5A),
-      outlineVariant: Color(0xFF1E2A44),
-    ),
-    textTheme: _baseTextTheme.apply(
-      bodyColor: const Color(0xFF94A3B8),
-      displayColor: const Color(0xFFF8FAFC),
-    ),
-    dividerTheme: DividerThemeData(
-      color: Colors.white.withOpacity(0.06),
-      thickness: 0.5,
-    ),
-    cardTheme: CardTheme(
-      color: const Color(0xFF131B2E),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Colors.white.withOpacity(0.08)),
-      ),
-    ),
-    navigationRailTheme: NavigationRailThemeData(
-      backgroundColor: const Color(0xFF090D16),
-      indicatorColor: _accentBlue.withOpacity(0.15),
-      labelType: NavigationRailLabelType.none,
-    ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: _accentBlue,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      ),
-    ),
-    snackBarTheme: SnackBarThemeData(
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-  );
+  static ThemeData _buildThemeData(NormTheme t) {
+    final isDark = t.brightness == Brightness.dark;
 
-  static final ThemeData _lightTheme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-    scaffoldBackgroundColor: const Color(0xffF5F5F0),
-    colorScheme: const ColorScheme.light(
-      surface: Color(0xffFFFFFF),
-      surfaceContainerLow: Color(0xffF0EFEC),
-      surfaceContainer: Color(0xffE8E7E3),
-      primary: const Color(0xff7B2CBF),
-      onPrimary: Color(0xffFFFFFF),
-      primaryContainer: Color(0xffEDE0FF),
-      onPrimaryContainer: Color(0xff2E0056),
-      secondary: Color(0xff6B4F7A),
-      onSecondary: Color(0xffFFFFFF),
-      secondaryContainer: Color(0xffF5E4FF),
-      onSecondaryContainer: Color(0xff250B34),
-      error: Color(0xffDC2626),
-      onError: Color(0xffFFFFFF),
-      surfaceTint: const Color(0xff7B2CBF),
-      outline: Color(0xffC2C1BC),
-      outlineVariant: Color(0xffD6D5D0),
-    ),
-    textTheme: _baseTextTheme.apply(
-      bodyColor: const Color(0xff1A1A1E),
-      displayColor: const Color(0xff0B0B0F),
-    ),
-    dividerTheme: DividerThemeData(
-      color: const Color(0xff000000).withOpacity(0.06),
-      thickness: 0.5,
-    ),
-    cardTheme: CardTheme(
-      color: const Color(0xffFFFFFF),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: const Color(0xff7B2CBF),
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      ),
-    ),
-    snackBarTheme: SnackBarThemeData(
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-  );
+    final textTheme = _baseTextTheme.apply(
+      bodyColor: t.textSub,
+      displayColor: t.textMain,
+      fontFamily: t.fontFamily,
+    );
 
-  static final ThemeData _sepiaTheme = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-    scaffoldBackgroundColor: const Color(0xffF4ECD8),
-    colorScheme: const ColorScheme.light(
-      surface: Color(0xffF4ECD8),
-      surfaceContainerLow: Color(0xffEBE2CC),
-      surfaceContainer: Color(0xffE0D6BE),
-      primary: Color(0xff8C6239),
-      onPrimary: Color(0xffFFFFFF),
-      primaryContainer: Color(0xffEAD7C0),
-      onPrimaryContainer: Color(0xFF3D280E),
-      secondary: Color(0xffA0805A),
-      onSecondary: Color(0xffFFFFFF),
-      secondaryContainer: Color(0xffF0E2CC),
-      onSecondaryContainer: Color(0xff372711),
-      error: Color(0xffC93A3A),
-      onError: Color(0xffFFFFFF),
-      surfaceTint: Color(0xff8C6239),
-      outline: Color(0xffCCC3B0),
-      outlineVariant: Color(0xffDBD3C2),
-    ),
-    textTheme: _baseTextTheme.apply(
-      bodyColor: const Color(0xff2C2418),
-      displayColor: const Color(0xff1C160E),
-    ),
-    dividerTheme: DividerThemeData(
-      color: const Color(0xff000000).withOpacity(0.08),
-      thickness: 0.5,
-    ),
-    cardTheme: CardTheme(
-      color: const Color(0xffF4ECD8),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-    filledButtonTheme: FilledButtonThemeData(
-      style: FilledButton.styleFrom(
-        backgroundColor: const Color(0xff8C6239),
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    return ThemeData(
+      useMaterial3: true,
+      brightness: t.brightness,
+      scaffoldBackgroundColor: t.canvasBg,
+      colorScheme: ColorScheme(
+        brightness: t.brightness,
+        primary: t.accent,
+        onPrimary: isDark ? Colors.white : Colors.white,
+        primaryContainer: t.accent.withOpacity(0.2),
+        onPrimaryContainer: t.textMain,
+        secondary: t.accent.withOpacity(0.8),
+        onSecondary: t.textMain,
+        secondaryContainer: t.cardBg,
+        onSecondaryContainer: t.textMain,
+        tertiary: t.textSub,
+        onTertiary: t.textMain,
+        error: const Color(0xFFEF4444),
+        onError: Colors.white,
+        surface: t.canvasBg,
+        onSurface: t.textMain,
+        surfaceContainerLowest: t.canvasBg,
+        surfaceContainerLow: Color.lerp(t.canvasBg, t.cardBg, 0.3) ?? t.canvasBg,
+        surfaceContainer: t.cardBg,
+        surfaceContainerHigh: Color.lerp(t.cardBg, t.borderColor, 0.3) ?? t.cardBg,
+        surfaceContainerHighest: t.borderColor,
+        onSurfaceVariant: t.textSub,
+        outline: t.borderColor,
+        outlineVariant: t.borderColor.withOpacity(0.5),
+        surfaceTint: t.accent,
+        shadow: Colors.black.withOpacity(0.3),
+        scrim: Colors.black38,
       ),
-    ),
-    snackBarTheme: SnackBarThemeData(
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ),
-  );
+      textTheme: textTheme,
+      dividerTheme: DividerThemeData(
+        color: t.borderColor.withOpacity(0.6),
+        thickness: 0.5,
+      ),
+      cardTheme: CardTheme(
+        color: t.cardBg,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(t.cardRadius),
+          side: BorderSide(color: t.borderColor.withOpacity(0.5)),
+        ),
+      ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: t.canvasBg,
+        indicatorColor: t.accent.withOpacity(0.15),
+        labelType: NavigationRailLabelType.none,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: t.accent,
+          foregroundColor: isDark ? Colors.white : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(t.innerRadius),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(t.innerRadius),
+        ),
+      ),
+    );
+  }
+}
+
+extension NormThemeExtension on NormThemeType {
+  String get displayName => _normThemes[this]!.name;
+  String get description => _normThemes[this]!.description;
+  Color get swatchColor => _normThemes[this]!.accent;
+  NormTheme get theme => _normThemes[this]!;
 }

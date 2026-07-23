@@ -11,6 +11,7 @@ import '../../../core/services/update_service.dart';
 import '../../../core/utils/responsive_layout.dart';
 import '../../../core/widgets/cloud_sync_status_widget.dart';
 import '../../../core/widgets/update_dialog.dart';
+import '../../../core/widgets/user_avatar_menu.dart';
 import '../../ai/presentation/ai_assistant_panel.dart';
 import '../../home/widgets/theme_selector.dart';
 import '../../notes/domain/note_model.dart';
@@ -225,15 +226,12 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
                 onPressed: notifier.notes.length > 1 ? _deleteActiveNote : null,
               ),
               IconButton(
-                icon: Icon(Icons.settings_outlined, color: scheme.outline),
-                tooltip: 'Ajustes',
-                onPressed: () => showSettings(context),
-              ),
-              IconButton(
                 icon: Icon(Icons.auto_awesome, color: scheme.primary),
                 tooltip: 'Asistente IA',
                 onPressed: () => showAiAssistant(context, noteId: notifier.activeNote?.id),
               ),
+              const SizedBox(width: 4),
+              const UserAvatarMenu(),
             ],
           ),
         ),
@@ -330,73 +328,168 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
 
   void _showNewNoteChooser(BuildContext context) {
     final notifier = context.read<NotesNotifier>();
+    final scheme = Theme.of(context).colorScheme;
+
+    final modules = [
+      _ModuleOption(Icons.article_outlined, const Color(0xFF34D399), 'NOTE',
+          'Nota rápida', 'Texto enriquecido con AppFlowy', () {
+        Navigator.of(context).pop();
+        notifier.createTextNote();
+      }),
+      _ModuleOption(Icons.checklist_rtl, const Color(0xFFFBBF24), 'TASK',
+          'Tareas NLP', 'Gestión de tareas con lenguaje natural', () {
+        Navigator.of(context).pop();
+        notifier.createTextNote();
+        ScaffoldMessenger.of(context).showSnackBar(_comingSoonSnackbar());
+      }),
+      _ModuleOption(Icons.description_outlined, const Color(0xFF818CF8), 'DOC',
+          'Documento', 'Editor de documentos largos', () {
+        Navigator.of(context).pop();
+        notifier.createTextNote();
+      }),
+      _ModuleOption(Icons.table_chart_outlined, const Color(0xFF38BDF8), 'SHEET',
+          'Hoja de Datos', 'Datos estructurados con tabla', () {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(_comingSoonSnackbar());
+      }),
+      _ModuleOption(Icons.bar_chart_outlined, const Color(0xFFA78BFA), 'CHART',
+          'Telemetría', 'Gráficos y rendimiento a 60 FPS', () {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(_comingSoonSnackbar());
+      }),
+      _ModuleOption(Icons.draw_outlined, const Color(0xFFFB7185), 'CANVAS',
+          'Pizarrón Infinito', 'Lienzo espacial con zoom y nodos', () {
+        Navigator.of(context).pop();
+        notifier.createWhiteboard();
+      }),
+      _ModuleOption(Icons.link_outlined, const Color(0xFFF472B6), 'LINK',
+          'Enlace / Backlink', 'Gestor de conexiones semánticas', () {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(_comingSoonSnackbar());
+      }),
+    ];
+
     showModalBottomSheet(
       context: context,
-      backgroundColor: Theme.of(context).cardColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (ctx) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
+          padding: const EdgeInsets.all(16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(2),
+                  color: scheme.surfaceContainer.withOpacity(0.95),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: scheme.outline.withOpacity(0.4)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40, height: 4,
+                        decoration: BoxDecoration(
+                          color: scheme.onSurfaceVariant.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Crear Nuevo Elemento',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: scheme.onSurface),
+                    ),
+                    const SizedBox(height: 16),
+                    ...modules.map((m) => _buildModuleOption(ctx, m)),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
-              const Text(
-                'Nueva nota',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 24),
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Theme.of(ctx).colorScheme.primaryContainer.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(Icons.article_outlined, color: Theme.of(ctx).colorScheme.primary),
-                ),
-                title: const Text('Documento de Texto'),
-                subtitle: const Text('Editor enriquecido con AppFlowy'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  notifier.createTextNote();
-                },
-              ),
-              const Divider(indent: 16, endIndent: 16),
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xff9d4edd).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.draw_outlined, color: Color(0xff9d4edd)),
-                ),
-                title: const Text('Pizarrón Blanco'),
-                subtitle: const Text('Dibujo vectorial con lápiz y colores'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  notifier.createWhiteboard();
-                },
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  SnackBar _comingSoonSnackbar() {
+    return SnackBar(
+      content: const Text('Próximamente en v1.8.x'),
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    );
+  }
+
+  Widget _buildModuleOption(BuildContext context, _ModuleOption m) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: m.onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: m.color.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(m.icon, color: m.color, size: 20),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(m.title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: scheme.onSurface)),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: m.color.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(m.code, style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: m.color, fontFamily: 'monospace')),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(m.subtitle, style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, size: 18, color: scheme.onSurfaceVariant.withOpacity(0.5)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  class _ModuleOption {
+  final IconData icon;
+  final Color color;
+  final String code;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  _ModuleOption(this.icon, this.color, this.code, this.title, this.subtitle, this.onTap);
+}
 
   Widget _buildDrawerNoteList(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -538,11 +631,62 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 12),
+                _buildTemplateButton(context),
                 const Spacer(),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTemplateButton(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => _showComingSoon(context),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: scheme.outline.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.widgets_outlined, size: 16, color: const Color(0xFF34D399)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Plantillas y Bóveda', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: scheme.onSurface, fontFamily: 'monospace')),
+                      Text('Cargar o Exportar Grids', style: TextStyle(fontSize: 9, color: scheme.onSurfaceVariant, fontFamily: 'monospace')),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right, size: 14, color: scheme.onSurfaceVariant.withOpacity(0.5)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showComingSoon(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Próximamente en v1.8.x'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -660,30 +804,55 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
       ),
       child: Row(
         children: [
-          Flexible(
-            child: Text(
-              notifier.activeNote?.title ?? 'Nota',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: scheme.onSurface,
+          Expanded(
+            child: Container(
+              height: 36,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: scheme.outline.withOpacity(0.3)),
               ),
-              overflow: TextOverflow.ellipsis,
+              child: Row(
+                children: [
+                  Icon(Icons.search, size: 14, color: scheme.onSurfaceVariant.withOpacity(0.5)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      style: TextStyle(fontSize: 12, color: scheme.onSurface),
+                      decoration: InputDecoration(
+                        hintText: 'Buscar notas, tareas...',
+                        hintStyle: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant.withOpacity(0.4)),
+                        border: InputBorder.none,
+                        isDense: true,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: scheme.surfaceContainer,
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: scheme.outline.withOpacity(0.3)),
+                    ),
+                    child: Text(
+                      'Ctrl+K',
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.bold,
+                        color: scheme.onSurfaceVariant.withOpacity(0.6),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 8),
           const CloudSyncStatusWidget(),
           const SizedBox(width: 8),
-          Icon(
-            Icons.save_outlined,
-            color: scheme.outline,
-            size: 20,
-          ),
-          IconButton(
-            icon: Icon(Icons.settings_outlined, color: scheme.outline),
-            tooltip: 'Ajustes',
-            onPressed: () => showSettings(context),
-          ),
           IconButton(
             tooltip: 'Eliminar nota',
             icon: Icon(Icons.delete_outline, color: scheme.outline),
@@ -694,6 +863,8 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
             tooltip: 'Asistente IA',
             onPressed: () => showAiAssistant(context, noteId: notifier.activeNote?.id),
           ),
+          const SizedBox(width: 4),
+          const UserAvatarMenu(),
         ],
       ),
     );

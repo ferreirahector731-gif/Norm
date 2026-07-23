@@ -140,12 +140,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Fondo semitransparente
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Container(color: Colors.black38),
           ),
-          // Panel deslizante
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeOutCubic,
@@ -243,74 +241,84 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  // ── Tema ───────────────────────────────────────
-
   Widget _buildThemeSection(BuildContext context) {
     return _buildSection(
       context,
       title: 'INTERFAZ Y TEMA',
       icon: Icons.palette_outlined,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _themeCircle(context, ThemeModeType.dark, const Color(0xff0B0B0F)),
-            _themeCircle(context, ThemeModeType.light, const Color(0xffF5F5F0)),
-            _themeCircle(context, ThemeModeType.sepia, const Color(0xffF4ECD8)),
-          ],
-        ),
-      ),
+      child: _buildThemeGrid(context),
     );
   }
 
-  Widget _themeCircle(BuildContext context, ThemeModeType type, Color color) {
+  Widget _buildThemeGrid(BuildContext context) {
     final provider = context.watch<ThemeProvider>();
-    final isSelected = provider.currentTheme == type;
+    final scheme = Theme.of(context).colorScheme;
 
-    return GestureDetector(
-      onTap: () => provider.setTheme(type),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOutCubic,
-        width: 52,
-        height: 52,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : color == const Color(0xff0B0B0F)
-                    ? Colors.white24
-                    : Colors.black12,
-            width: isSelected ? 3 : 1,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withOpacity(0.35),
-                    blurRadius: 10,
-                    spreadRadius: 1,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 14,
+        alignment: WrapAlignment.center,
+        children: NormThemeType.values.map((type) {
+          final t = type.theme;
+          final isSelected = provider.currentTheme == type;
+          return GestureDetector(
+            onTap: () => provider.setTheme(type),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              width: 54,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: t.canvasBg,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected ? t.accent : t.borderColor,
+                        width: isSelected ? 3 : 1.5,
+                      ),
+                      boxShadow: isSelected
+                          ? [BoxShadow(color: t.accent.withOpacity(0.35), blurRadius: 10, spreadRadius: 1)]
+                          : [],
+                    ),
+                    child: Center(
+                      child: isSelected
+                          ? Icon(Icons.check, size: 20, color: t.accent)
+                          : Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: t.accent,
+                              ),
+                            ),
+                    ),
                   ),
-                ]
-              : [],
-        ),
-        child: isSelected
-            ? Icon(Icons.check,
-                size: 22,
-                color: type == ThemeModeType.dark
-                    ? Colors.white
-                    : Theme.of(context).colorScheme.primary)
-            : null,
+                  const SizedBox(height: 6),
+                  Text(
+                    type.displayName,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? scheme.onSurface : scheme.onSurfaceVariant,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
-
-  // ── IA ──────────────────────────────────────────
 
   Widget _buildAISection(BuildContext context) {
     return _buildSection(
@@ -543,8 +551,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  // ── Memoria IA ──────────────────────────────────
-
   Widget _buildMemorySection(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
@@ -641,8 +647,6 @@ class _SettingsScreenState extends State<SettingsScreen>
       ),
     );
   }
-
-  // ── Sync ────────────────────────────────────────
 
   Widget _buildSyncSection(BuildContext context) {
     final theme = Theme.of(context);
@@ -749,8 +753,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
-  // ── Versión ────────────────────────────────────
-
   Widget _buildVersionInfo(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
@@ -795,8 +797,6 @@ class _SettingsScreenState extends State<SettingsScreen>
       ],
     );
   }
-
-  // ── Util ────────────────────────────────────────
 
   Widget _buildSection(
     BuildContext context, {

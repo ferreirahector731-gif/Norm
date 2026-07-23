@@ -87,50 +87,47 @@ class _ThemeSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
     final scheme = Theme.of(context).colorScheme;
+    final normTheme = themeProvider.theme;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _themeCircle(context, ThemeModeType.dark, const Color(0xFF090D16),
-            themeProvider.currentTheme == ThemeModeType.dark, () {
-          themeProvider.setTheme(ThemeModeType.dark);
-        }),
-        _themeCircle(context, ThemeModeType.light, const Color(0xFFF5F5F0),
-            themeProvider.currentTheme == ThemeModeType.light, () {
-          themeProvider.setTheme(ThemeModeType.light);
-        }),
-        _themeCircle(context, ThemeModeType.sepia, const Color(0xFFF4ECD8),
-            themeProvider.currentTheme == ThemeModeType.sepia, () {
-          themeProvider.setTheme(ThemeModeType.sepia);
-        }),
-      ],
-    );
-  }
-
-  Widget _themeCircle(BuildContext context, ThemeModeType type, Color color,
-      bool isSelected, VoidCallback onTap) {
-    final scheme = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: isSelected ? scheme.primary : scheme.outlineVariant.withOpacity(0.3),
-            width: isSelected ? 2.5 : 1,
+    return Wrap(
+      spacing: 8,
+      runSpacing: 10,
+      alignment: WrapAlignment.center,
+      children: NormThemeType.values.map((type) {
+        final t = type.theme;
+        final isSelected = themeProvider.currentTheme == type;
+        return GestureDetector(
+          onTap: () => themeProvider.setTheme(type),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: t.canvasBg,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isSelected ? t.accent : t.borderColor,
+                width: isSelected ? 2.5 : 1,
+              ),
+              boxShadow: isSelected
+                  ? [BoxShadow(color: t.accent.withOpacity(0.3), blurRadius: 8)]
+                  : [],
+            ),
+            child: Center(
+              child: isSelected
+                  ? Icon(Icons.check, size: 20, color: t.accent)
+                  : Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: t.accent,
+                      ),
+                    ),
+            ),
           ),
-          boxShadow: isSelected
-              ? [BoxShadow(color: scheme.primary.withOpacity(0.3), blurRadius: 8)]
-              : [],
-        ),
-        child: isSelected
-            ? Icon(Icons.check, size: 20, color: type == ThemeModeType.dark ? Colors.white : scheme.primary)
-            : null,
-      ),
+        );
+      }).toList(),
     );
   }
 }
@@ -149,52 +146,53 @@ class _MemorySelectorState extends State<_MemorySelector> {
     _selected = SettingsService.memoryRetention;
   }
 
-  void _onChanged(MemoryRetention value) {
-    setState(() => _selected = value);
-    SettingsService.setMemoryRetention(value);
-    final map = <MemoryRetention, RetentionPeriod>{
-      MemoryRetention.oneWeek: RetentionPeriod.week,
-      MemoryRetention.oneMonth: RetentionPeriod.month,
-      MemoryRetention.threeMonths: RetentionPeriod.threeMonths,
-      MemoryRetention.forever: RetentionPeriod.never,
-    };
-    RetentionService().updatePeriod(map[value] ?? RetentionPeriod.month);
-  }
-
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+
     return Column(
-      children: MemoryRetention.values.map((r) {
-        final isSelected = _selected == r;
+      children: MemoryRetention.values.map((retention) {
+        final isSelected = _selected == retention;
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 3),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           child: GestureDetector(
-            onTap: () => _onChanged(r),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            onTap: () {
+              setState(() => _selected = retention);
+              SettingsService.setMemoryRetention(retention);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
-                color: isSelected ? scheme.primary.withOpacity(0.1) : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
+                color: isSelected
+                    ? scheme.primary.withOpacity(0.12)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isSelected ? scheme.primary.withOpacity(0.3) : scheme.outlineVariant.withOpacity(0.1),
+                  color: isSelected
+                      ? scheme.primary.withOpacity(0.4)
+                      : scheme.outlineVariant.withOpacity(0.15),
+                  width: isSelected ? 1.5 : 0.5,
                 ),
               ),
               child: Row(
                 children: [
                   Icon(
-                    isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                    size: 16,
+                    isSelected
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    size: 18,
                     color: isSelected ? scheme.primary : scheme.outline,
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Text(
-                    r.label,
+                    retention.label,
                     style: TextStyle(
-                      fontSize: 13,
-                      color: isSelected ? scheme.onSurface : scheme.onSurfaceVariant,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      fontSize: 14,
+                      color: isSelected
+                          ? scheme.onSurface
+                          : scheme.onSurfaceVariant,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
                 ],
@@ -211,76 +209,66 @@ class _SessionInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final authService = context.watch<AuthService>();
+    final authService = context.read<AuthService>();
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow.withOpacity(0.4),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: scheme.outlineVariant.withOpacity(0.15)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            authService.isGuest
-                ? Icons.person_outline
-                : authService.isAuthenticated
-                    ? Icons.cloud_done_outlined
-                    : Icons.person_off_outlined,
-            size: 20,
-            color: scheme.primary,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  authService.isGuest
-                      ? 'Modo Invitado'
-                      : authService.isAuthenticated
-                          ? 'Usuario autenticado'
-                          : 'Sin sesión',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: scheme.onSurface,
-                  ),
-                ),
-                Text(
-                  authService.isGuest
-                      ? 'Datos solo en este dispositivo'
-                      : authService.isAuthenticated
-                          ? 'Sincronización en la nube activa'
-                          : 'Inicia sesión para sincronizar',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: scheme.outlineVariant.withOpacity(0.2),
+              width: 0.5,
             ),
           ),
-          if (authService.isGuest || authService.isAuthenticated)
-            TextButton(
-              onPressed: () => _signOut(context, authService),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.redAccent,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                minimumSize: Size.zero,
+          child: Row(
+            children: [
+              Icon(Icons.person_outline, size: 18, color: scheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      authService.currentUserEmail ?? 'Invitado',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                    Text(
+                      authService.isCloudEnabled
+                          ? 'Sesión en la nube'
+                          : 'Modo local',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: const Text('Salir', style: TextStyle(fontSize: 12)),
-            ),
-        ],
-      ),
+              if (authService.isCloudEnabled && authService.currentUserEmail != null)
+                TextButton(
+                  onPressed: () {
+                    authService.signOut();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'Cerrar sesión',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: scheme.error,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
-  }
-
-  Future<void> _signOut(BuildContext context, AuthService authService) async {
-    await authService.signOut();
-    if (context.mounted) {
-      Navigator.of(context).pop();
-    }
   }
 }
