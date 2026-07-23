@@ -499,17 +499,6 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
     );
   }
 
-  class _ModuleOption {
-  final IconData icon;
-  final Color color;
-  final String code;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  _ModuleOption(this.icon, this.color, this.code, this.title, this.subtitle, this.onTap);
-}
-
   Widget _buildDrawerNoteList(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final notifier = context.watch<NotesNotifier>();
@@ -893,4 +882,15 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
       ),
     );
   }
+}
+
+class _ModuleOption {
+  final IconData icon;
+  final Color color;
+  final String code;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  _ModuleOption(this.icon, this.color, this.code, this.title, this.subtitle, this.onTap);
 }

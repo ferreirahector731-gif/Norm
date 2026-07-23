@@ -232,7 +232,7 @@ class _SessionInfo extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      authService.currentUserEmail ?? 'Invitado',
+                      authService.currentUser?.email ?? 'Invitado',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -251,7 +251,7 @@ class _SessionInfo extends StatelessWidget {
                   ],
                 ),
               ),
-              if (authService.isCloudEnabled && authService.currentUserEmail != null)
+              if (authService.isCloudEnabled && authService.currentUser != null)
                 TextButton(
                   onPressed: () {
                     authService.signOut();

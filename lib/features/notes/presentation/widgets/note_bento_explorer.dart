@@ -336,7 +336,6 @@ class _NoteBentoExplorerState extends State<NoteBentoExplorer> {
       ),
     );
   }
-}
 
   Widget _buildSearchBar(BuildContext context) {
     final theme = Theme.of(context);
