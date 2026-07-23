@@ -5,6 +5,7 @@ import 'dart:ui' show ImageFilter;
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../../../ai/domain/ai_config.dart';
 import '../../../ai/presentation/widgets/ai_approval_bar.dart';
@@ -12,7 +13,7 @@ import '../../../../core/utils/file_utils.dart';
 import '../../../../core/widgets/shimmer_loading.dart';
 import '../../domain/note_document_codec.dart';
 import '../../domain/note_model.dart';
-import '../../notifiers/notes_notifier.dart';
+import 'package:nota_ia_app/features/notes/presentation/notifiers/notes_notifier.dart';
 import '../editor_blocks/audio_block.dart';
 import '../editor_blocks/custom_block_keys.dart';
 import '../editor_blocks/placeholder_block.dart';

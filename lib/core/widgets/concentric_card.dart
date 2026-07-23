@@ -1,6 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 
 enum ConcentricLevel { outer, inner, innerMost }
@@ -11,7 +12,7 @@ class ConcentricCard extends StatelessWidget {
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? padding;
   final double? height;
-  final BorderSide? border;
+  final BoxBorder? border;
 
   const ConcentricCard({
     super.key,
@@ -80,18 +81,16 @@ class ConcentricCard extends StatelessWidget {
   Widget _buildContainer(BuildContext context, double radius) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final defaultBorder = BorderSide(
-      color: scheme.outline.withOpacity(0.5),
-      width: 1,
-    );
-
     return Container(
       height: height,
       padding: padding ?? const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: scheme.surfaceContainer.withOpacity(0.85),
         borderRadius: BorderRadius.circular(radius),
-        border: border ?? defaultBorder,
+        border: border ?? Border.all(
+          color: scheme.outline.withOpacity(0.5),
+          width: 1,
+        ),
       ),
       child: child,
     );
