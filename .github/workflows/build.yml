@@ -55,25 +55,18 @@ jobs:
       - name: Verify MSIX exists
         shell: pwsh
         run: |
-          $paths = @(
-            "build\windows\x64\runner\Release\*.msix",
-            "*.msix",
-            "build\windows\runner\Release\*.msix"
-          )
-          $msix = $null
-          foreach ($p in $paths) {
-            $msix = Get-ChildItem -LiteralPath $p -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($msix) { break }
+          echo "Buscando archivos .msix en el workspace..."
+          $msixFiles = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Filter "*.msix" -ErrorAction SilentlyContinue
+
+          if ($msixFiles) {
+              Write-Host "Se encontro el instalador MSIX en: $($msixFiles[0].FullName)"
+              Copy-Item -Path $msixFiles[0].FullName -Destination "$env:GITHUB_WORKSPACE\Norm_${{ github.ref_name }}.msix" -Force
+              Write-Host "Instalador copiado exitosamente a $env:GITHUB_WORKSPACE\Norm_${{ github.ref_name }}.msix"
+          } else {
+              Write-Host "Estructura actual del directorio build:"
+              Get-ChildItem -Path "$env:GITHUB_WORKSPACE\build" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
+              Write-Error "No se encontro ningun archivo .msix en todo el espacio de trabajo!"
           }
-          if (-not $msix) {
-            $msix = Get-ChildItem -Recurse -Filter "*.msix" -Depth 3 -ErrorAction SilentlyContinue | Select-Object -First 1
-          }
-          if (-not $msix) {
-            Write-Error "No .msix found!"
-            exit 1
-          }
-          Write-Output "Found: $($msix.FullName) ✅"
-          Move-Item -LiteralPath $msix.FullName -Destination "Norm_${{ github.ref_name }}.msix" -Force
 
       - name: Install Inno Setup
         run: |
