@@ -50,7 +50,7 @@ jobs:
       - name: Build MSIX installer
         shell: pwsh
         run: |
-          flutter pub run msix:create --no-install-certificate
+          dart run msix:create --install-certificate false
 
       - name: Verify MSIX exists
         shell: pwsh
