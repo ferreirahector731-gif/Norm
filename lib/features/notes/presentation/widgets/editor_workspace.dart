@@ -12,10 +12,19 @@ import '../../../../core/utils/file_utils.dart';
 import '../../../../core/widgets/shimmer_loading.dart';
 import '../../domain/note_document_codec.dart';
 import '../../domain/note_model.dart';
+import '../../notifiers/notes_notifier.dart';
 import '../editor_blocks/audio_block.dart';
 import '../editor_blocks/custom_block_keys.dart';
 import '../editor_blocks/placeholder_block.dart';
 import '../editor_blocks/whiteboard_block.dart';
+import '../../../sheets/domain/sheet_block.dart';
+import '../../../sheets/presentation/sheet_widget.dart';
+import '../../../charts/domain/chart_block.dart';
+import '../../../charts/presentation/chart_widget.dart';
+import '../../../tasks/domain/task_block.dart';
+import '../../../tasks/presentation/task_widget.dart';
+import '../../../links/domain/link_block.dart';
+import '../../../links/presentation/link_widget.dart';
 import 'whiteboard_canvas.dart';
 
 class EditorWorkspace extends StatefulWidget {
@@ -141,9 +150,12 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
     note.title = _titleController.text.isNotEmpty
         ? _titleController.text
         : 'Sin título';
-    note.contentJson = NoteDocumentCodec.encode(_editorState.document);
     note.updatedAt = DateTime.now();
     note.isDirty = true;
+
+    if (!SheetBlock.isSheet(note.contentJson) && !ChartBlock.isChart(note.contentJson) && !TaskBlock.isTask(note.contentJson) && !LinkBlock.isLink(note.contentJson)) {
+      note.contentJson = NoteDocumentCodec.encode(_editorState.document);
+    }
 
     widget.onNoteUpdated(note);
   }
@@ -164,6 +176,14 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
 
     final isWhiteboard = widget.note != null &&
         widget.note!.contentJson.trim().startsWith('[');
+    final isSheet = widget.note != null &&
+        SheetBlock.isSheet(widget.note!.contentJson);
+    final isChart = widget.note != null &&
+        ChartBlock.isChart(widget.note!.contentJson);
+    final isTask = widget.note != null &&
+        TaskBlock.isTask(widget.note!.contentJson);
+    final isLink = widget.note != null &&
+        LinkBlock.isLink(widget.note!.contentJson);
 
     if (widget.note == null) {
       return Container(
@@ -229,6 +249,130 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
       return WhiteboardCanvas(note: widget.note!);
     }
 
+    if (isSheet) {
+      final sheet = SheetBlock.decode(widget.note!.contentJson);
+      return Container(
+        color: scheme.surface,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSheetTitle(context),
+            const SizedBox(height: 12),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(40, 0, 40, 24),
+                child: SheetWidget(
+                  sheet: sheet,
+                  onChanged: (updated) {
+                    widget.note!.contentJson = updated.encode();
+                    widget.note!.updatedAt = DateTime.now();
+                    widget.note!.isDirty = true;
+                    widget.onNoteUpdated(widget.note!);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (isChart) {
+      final chart = ChartBlock.decode(widget.note!.contentJson);
+      final allNotes = context.read<NotesNotifier>().notes;
+      return Container(
+        color: scheme.surface,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSheetTitle(context),
+            const SizedBox(height: 12),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(40, 0, 40, 24),
+                child: ChartWidget(
+                  chart: chart,
+                  onChanged: (updated) {
+                    widget.note!.contentJson = updated.encode();
+                    widget.note!.updatedAt = DateTime.now();
+                    widget.note!.isDirty = true;
+                    widget.onNoteUpdated(widget.note!);
+                  },
+                  allNotes: allNotes,
+                  onLinkSheet: (msg) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (isTask) {
+      final block = TaskBlock.decode(widget.note!.contentJson);
+      return Container(
+        color: scheme.surface,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSheetTitle(context),
+            const SizedBox(height: 12),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(40, 0, 40, 24),
+                child: TaskWidget(
+                  block: block,
+                  onChanged: (updated) {
+                    widget.note!.contentJson = updated.encode();
+                    widget.note!.updatedAt = DateTime.now();
+                    widget.note!.isDirty = true;
+                    widget.onNoteUpdated(widget.note!);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (isLink) {
+      final block = LinkBlock.decode(widget.note!.contentJson);
+      final allNotes = context.read<NotesNotifier>().notes;
+      return Container(
+        color: scheme.surface,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSheetTitle(context),
+            const SizedBox(height: 12),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(40, 0, 40, 24),
+                child: LinkWidget(
+                  block: block,
+                  onChanged: (updated) {
+                    widget.note!.contentJson = updated.encode();
+                    widget.note!.updatedAt = DateTime.now();
+                    widget.note!.isDirty = true;
+                    widget.onNoteUpdated(widget.note!);
+                  },
+                  allNotes: allNotes,
+                  currentNote: widget.note,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       color: scheme.surface,
       child: Column(
@@ -274,6 +418,53 @@ class _EditorWorkspaceState extends State<EditorWorkspace> {
           ),
         ),
         onChanged: (_) => _scheduleSave(),
+      ),
+    );
+  }
+
+  Widget _buildSheetTitle(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 56, right: 56, top: 24),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _titleController,
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: scheme.onSurface,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Título de la hoja...',
+                hintStyle: TextStyle(
+                  color: scheme.onSurfaceVariant.withOpacity(0.25),
+                ),
+              ),
+              onChanged: (_) => _scheduleSave(),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFF38BDF8).withOpacity(0.12),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              'SHEET',
+              style: TextStyle(
+                fontSize: 10,
+                fontFamily: 'monospace',
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF38BDF8),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

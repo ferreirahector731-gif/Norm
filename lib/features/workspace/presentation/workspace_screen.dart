@@ -19,6 +19,10 @@ import '../../notes/presentation/widgets/editor_workspace.dart';
 import '../../notes/presentation/widgets/note_bento_explorer.dart';
 import '../../notes/presentation/widgets/whiteboard_canvas.dart';
 import '../../notes/presentation/notifiers/notes_notifier.dart';
+import '../../sheets/domain/sheet_block.dart';
+import '../../charts/domain/chart_block.dart';
+import '../../tasks/domain/task_block.dart';
+import '../../links/domain/link_block.dart';
 import '../../settings/presentation/settings_dialog.dart';
 import '../../settings/presentation/settings_screen.dart';
 
@@ -97,6 +101,22 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
   bool _isWhiteboard(NoteModel note) {
     final raw = note.contentJson.trim();
     return raw.isNotEmpty && raw.startsWith('[');
+  }
+
+  bool _isSheet(NoteModel note) {
+    return SheetBlock.isSheet(note.contentJson);
+  }
+
+  bool _isChart(NoteModel note) {
+    return ChartBlock.isChart(note.contentJson);
+  }
+
+  bool _isTask(NoteModel note) {
+    return TaskBlock.isTask(note.contentJson);
+  }
+
+  bool _isLink(NoteModel note) {
+    return LinkBlock.isLink(note.contentJson);
   }
 
   void _onNoteUpdated(NoteModel updatedNote) {
@@ -339,8 +359,7 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
       _ModuleOption(Icons.checklist_rtl, const Color(0xFFFBBF24), 'TASK',
           'Tareas NLP', 'Gestión de tareas con lenguaje natural', () {
         Navigator.of(context).pop();
-        notifier.createTextNote();
-        ScaffoldMessenger.of(context).showSnackBar(_comingSoonSnackbar());
+        notifier.createTask();
       }),
       _ModuleOption(Icons.description_outlined, const Color(0xFF818CF8), 'DOC',
           'Documento', 'Editor de documentos largos', () {
@@ -350,12 +369,12 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
       _ModuleOption(Icons.table_chart_outlined, const Color(0xFF38BDF8), 'SHEET',
           'Hoja de Datos', 'Datos estructurados con tabla', () {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(_comingSoonSnackbar());
+        notifier.createSheet();
       }),
       _ModuleOption(Icons.bar_chart_outlined, const Color(0xFFA78BFA), 'CHART',
           'Telemetría', 'Gráficos y rendimiento a 60 FPS', () {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(_comingSoonSnackbar());
+        notifier.createChart();
       }),
       _ModuleOption(Icons.draw_outlined, const Color(0xFFFB7185), 'CANVAS',
           'Pizarrón Infinito', 'Lienzo espacial con zoom y nodos', () {
@@ -363,9 +382,9 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
         notifier.createWhiteboard();
       }),
       _ModuleOption(Icons.link_outlined, const Color(0xFFF472B6), 'LINK',
-          'Enlace / Backlink', 'Gestor de conexiones semánticas', () {
+          'Enlace / Backlink', 'Conexiones semánticas', () {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(_comingSoonSnackbar());
+        notifier.createLink();
       }),
     ];
 
@@ -525,7 +544,12 @@ class _WorkspaceScreenState extends State<WorkspaceScreen> {
                 child: ListTile(
                   dense: true,
                   leading: Icon(
-                    _isWhiteboard(note) ? Icons.draw_outlined : Icons.description_outlined,
+                    _isLink(note) ? Icons.link_outlined :
+                    _isTask(note) ? Icons.checklist_rtl :
+                    _isChart(note) ? Icons.bar_chart_outlined :
+                    _isSheet(note) ? Icons.table_chart_outlined :
+                    _isWhiteboard(note) ? Icons.draw_outlined :
+                    Icons.description_outlined,
                     size: 18,
                     color: isSelected ? scheme.primary : scheme.onSurfaceVariant.withOpacity(0.6),
                   ),
