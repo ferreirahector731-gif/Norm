@@ -55,13 +55,13 @@ jobs:
       - name: Verify MSIX exists
         shell: pwsh
         run: |
-          $msix = Get-ChildItem "*.msix" | Select-Object -First 1
+          $msix = Get-ChildItem -Recurse -Filter "*.msix" -Depth 2 | Select-Object -First 1
           if (-not $msix) {
             Write-Error "No .msix found!"
             exit 1
           }
-          Write-Output "$($msix.Name) ✅"
-          Move-Item -LiteralPath $msix.Name -Destination "Norm_${{ github.ref_name }}.msix" -Force
+          Write-Output "$($msix.FullName) ✅"
+          Move-Item -LiteralPath $msix.FullName -Destination "Norm_${{ github.ref_name }}.msix" -Force
 
       - name: Install Inno Setup
         run: |
