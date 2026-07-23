@@ -55,12 +55,24 @@ jobs:
       - name: Verify MSIX exists
         shell: pwsh
         run: |
-          $msix = Get-ChildItem -Recurse -Filter "*.msix" -Depth 2 | Select-Object -First 1
+          $paths = @(
+            "build\windows\x64\runner\Release\*.msix",
+            "*.msix",
+            "build\windows\runner\Release\*.msix"
+          )
+          $msix = $null
+          foreach ($p in $paths) {
+            $msix = Get-ChildItem -LiteralPath $p -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($msix) { break }
+          }
+          if (-not $msix) {
+            $msix = Get-ChildItem -Recurse -Filter "*.msix" -Depth 3 -ErrorAction SilentlyContinue | Select-Object -First 1
+          }
           if (-not $msix) {
             Write-Error "No .msix found!"
             exit 1
           }
-          Write-Output "$($msix.FullName) ✅"
+          Write-Output "Found: $($msix.FullName) ✅"
           Move-Item -LiteralPath $msix.FullName -Destination "Norm_${{ github.ref_name }}.msix" -Force
 
       - name: Install Inno Setup
