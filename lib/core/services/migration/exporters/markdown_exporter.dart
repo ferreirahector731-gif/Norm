@@ -16,7 +16,7 @@ class MarkdownExporter {
     for (final note in notes) {
       final frontmatter = <String, String>{
         'title': note.title,
-        'id': note.id,
+        'id': note.id.toString(),
         'created': note.createdAt.toIso8601String(),
         'updated': note.updatedAt.toIso8601String(),
         'type': detectNoteType(note),

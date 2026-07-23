@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import '../../../../features/notes/domain/note_model.dart';
@@ -16,6 +17,7 @@ class LiquidDataSync {
 
   final _linkedNotes = LinkedHashMap<String, Set<String>>();
   final _listeners = <void Function()>[];
+  StreamSubscription? _dbSubscription;
 
   void registerLink(String sourceNoteId, String targetNoteId) {
     _linkedNotes.putIfAbsent(sourceNoteId, () => {}).add(targetNoteId);
@@ -29,9 +31,10 @@ class LiquidDataSync {
   }
 
   void propagateUpdate(NoteModel updatedNote) {
-    final affected = <String>{updatedNote.id};
+    final idStr = updatedNote.id.toString();
+    final affected = <String>{idStr};
     for (final entry in _linkedNotes.entries) {
-      if (entry.value.contains(updatedNote.id)) {
+      if (entry.value.contains(idStr)) {
         affected.add(entry.key);
       }
     }
@@ -117,7 +120,7 @@ class LiquidDataSync {
       final linkNotes = allNotes.where((n) => n.title.contains(task.title)).toList();
 
       for (final linkNote in linkNotes) {
-        registerLink(linkNote.id, taskNote.id);
+        registerLink(linkNote.id.toString(), taskNote.id.toString());
         propagateUpdate(linkNote);
       }
     } catch (_) {}
