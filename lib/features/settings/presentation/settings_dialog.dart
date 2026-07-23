@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../auth/data/auth_service.dart';
 import '../services/settings_service.dart';
 import '../../ai/domain/retention_service.dart';
+import 'migration_section.dart';
 
 class SettingsDialog extends StatelessWidget {
   const SettingsDialog({super.key});
@@ -61,6 +62,8 @@ class SettingsDialog extends StatelessWidget {
               _buildSectionLabel(context, 'SESIÓN'),
               const SizedBox(height: 8),
               _SessionInfo(),
+              const SizedBox(height: 24),
+              const MigrationSection(),
             ],
           ),
         ),

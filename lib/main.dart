@@ -11,6 +11,8 @@ import 'features/auth/presentation/auth_screen.dart';
 import 'features/workspace/presentation/workspace_screen.dart';
 import 'features/ai/domain/retention_service.dart';
 import 'core/services/sync_manager.dart';
+import 'core/services/migration/liquid_data_sync.dart';
+import 'core/services/migration/data_migration_service.dart';
 import 'features/notes/presentation/notifiers/notes_notifier.dart';
 import 'features/settings/services/settings_service.dart';
 
@@ -68,6 +70,8 @@ void main() async {
 
   RetentionService().start();
   _syncRetentionAtStartup();
+
+  DataMigrationService().reindexCrossReferences();
 
   runApp(
     MultiProvider(
