@@ -15,7 +15,10 @@ jobs:
     runs-on: windows-2022
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: .
 
       - uses: subosito/flutter-action@v2
         with:
@@ -35,13 +38,12 @@ jobs:
           flutter pub run flutter_native_splash:create
 
       - name: Build
-        working-directory: ${{ github.workspace }}
         run: flutter build windows --release
 
       - name: Verify binary exists
         shell: pwsh
         run: |
-          $buildDir = "${{ github.workspace }}\build\windows\x64\runner\Release"
+          $buildDir = "build\windows\x64\runner\Release"
           $exe = Get-ChildItem "$buildDir\*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
           if (-not $exe) {
             Write-Error "No .exe found in ${buildDir}!"
@@ -50,7 +52,6 @@ jobs:
           Write-Output "$($exe.Name) ✅"
 
       - name: Build MSIX installer
-        working-directory: ${{ github.workspace }}
         shell: pwsh
         run: |
           dart run msix:create --install-certificate false
@@ -59,15 +60,15 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Buscando archivos .msix en el workspace..."
-          $msixFiles = Get-ChildItem -Path "${{ github.workspace }}" -Recurse -Filter "*.msix" -ErrorAction SilentlyContinue
+          $msixFiles = Get-ChildItem -Path "." -Recurse -Filter "*.msix" -ErrorAction SilentlyContinue
 
           if ($msixFiles) {
               Write-Host "Se encontro el instalador MSIX en: $($msixFiles[0].FullName)"
-              Copy-Item -Path $msixFiles[0].FullName -Destination "${{ github.workspace }}\Norm_${{ github.ref_name }}.msix" -Force
-              Write-Host "Instalador copiado exitosamente a ${{ github.workspace }}\Norm_${{ github.ref_name }}.msix"
+              Copy-Item -Path $msixFiles[0].FullName -Destination ".\Norm_${{ github.ref_name }}.msix" -Force
+              Write-Host "Instalador copiado exitosamente a .\Norm_${{ github.ref_name }}.msix"
           } else {
               Write-Host "Estructura actual del directorio build:"
-              Get-ChildItem -Path "${{ github.workspace }}\build" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
+              Get-ChildItem -Path ".\build" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
               Write-Error "No se encontro ningun archivo .msix en todo el espacio de trabajo!"
           }
 
@@ -78,14 +79,14 @@ jobs:
       - name: Build Installer
         shell: pwsh
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /O"installer\Output" /F"Norm_${{ github.ref_name }}_Setup" installer\setup.iss
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /O".\installer\Output" /F"Norm_${{ github.ref_name }}_Setup" .\installer\setup.iss
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: |
             Norm_${{ github.ref_name }}.msix
-            installer/Output/Norm_${{ github.ref_name }}_Setup.exe
+            installer\Output\Norm_${{ github.ref_name }}_Setup.exe
 
   build-android:
     continue-on-error: true
@@ -93,7 +94,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: .
 
       - uses: subosito/flutter-action@v2
         with:
@@ -153,7 +157,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: .
 
       - uses: subosito/flutter-action@v2
         with:
@@ -188,7 +195,7 @@ jobs:
       - name: Package
         run: |
           cd build/linux/x64/release/bundle
-          tar czf "$GITHUB_WORKSPACE/Norm_Linux_${{ github.ref_name }}.tar.gz" *
+          tar czf "Norm_Linux_${{ github.ref_name }}.tar.gz" *
 
       - uses: actions/upload-artifact@v4
         with:
@@ -201,7 +208,10 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: .
 
       - uses: subosito/flutter-action@v2
         with:
@@ -237,7 +247,7 @@ jobs:
       - name: Package macOS
         run: |
           cd build/macos/Build/Products/Release
-          zip -r -y "$GITHUB_WORKSPACE/Norm_macOS_${{ github.ref_name }}.zip" "nota_ia_app.app"
+          zip -r -y "Norm_macOS_${{ github.ref_name }}.zip" "nota_ia_app.app"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -291,14 +301,15 @@ jobs:
     needs: release
     if: success()
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          path: .
           fetch-depth: 0
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
+          publish_dir: docs
           publish_branch: gh-pages
           force_orphan: true
