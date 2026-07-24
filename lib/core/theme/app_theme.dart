@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'custom_theme.dart';
+
 enum NormThemeType {
   proDark,
   nordicWoods,
@@ -174,13 +176,30 @@ const _normThemes = <NormThemeType, NormTheme>{
 
 class ThemeProvider extends ChangeNotifier {
   NormThemeType _currentTheme = NormThemeType.proDark;
+  CustomNormTheme? _activeCustomTheme;
 
   NormThemeType get currentTheme => _currentTheme;
 
-  NormTheme get theme => _normThemes[_currentTheme]!;
+  NormTheme get theme {
+    if (_activeCustomTheme != null) return _activeCustomTheme!.toNormTheme();
+    return _normThemes[_currentTheme]!;
+  }
+
+  CustomNormTheme? get activeCustomTheme => _activeCustomTheme;
 
   void setTheme(NormThemeType type) {
+    _activeCustomTheme = null;
     _currentTheme = type;
+    notifyListeners();
+  }
+
+  void setCustomTheme(CustomNormTheme customTheme) {
+    _activeCustomTheme = customTheme;
+    notifyListeners();
+  }
+
+  void clearCustomTheme() {
+    _activeCustomTheme = null;
     notifyListeners();
   }
 
