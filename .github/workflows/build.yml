@@ -9,15 +9,13 @@ permissions:
   contents: write
   id-token: write
 
-defaults:
-  run:
-    shell: pwsh
-    working-directory: ./norm_src
-
 jobs:
   build-windows:
     name: Windows
     runs-on: windows-2022
+    defaults:
+      run:
+        working-directory: ./norm_src
 
     steps:
       - name: Checkout repository
@@ -94,6 +92,9 @@ jobs:
     continue-on-error: true
     name: Android APK
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./norm_src
 
     steps:
       - name: Checkout repository
@@ -158,6 +159,9 @@ jobs:
   build-linux:
     name: Linux
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./norm_src
 
     steps:
       - name: Checkout repository
@@ -210,6 +214,9 @@ jobs:
     continue-on-error: true
     name: macOS
     runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ./norm_src
 
     steps:
       - name: Checkout repository
