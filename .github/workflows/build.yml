@@ -275,10 +275,11 @@ jobs:
       - name: Download all workflow artifacts
         uses: actions/download-artifact@v4
         with:
-          path: ./artifacts
+          path: artifacts
+          merge-multiple: true
 
       - name: List artifacts
-        run: find ./artifacts -type f
+        run: ls -R artifacts
 
       - uses: softprops/action-gh-release@v2
         env:
@@ -306,7 +307,7 @@ jobs:
             - `Norm_macOS_${{ github.ref_name }}.zip` — Aplicación para macOS
           draft: false
           prerelease: false
-          files: ./artifacts/*/*
+          files: artifacts/*
 
   deploy-pages:
     runs-on: ubuntu-latest
