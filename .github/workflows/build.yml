@@ -35,19 +35,22 @@ jobs:
           flutter pub run flutter_native_splash:create
 
       - name: Build
+        working-directory: ${{ github.workspace }}
         run: flutter build windows --release
 
       - name: Verify binary exists
         shell: pwsh
         run: |
-          $exe = Get-ChildItem "build\windows\x64\runner\Release\*.exe" | Select-Object -First 1
+          $buildDir = "${{ github.workspace }}\build\windows\x64\runner\Release"
+          $exe = Get-ChildItem "$buildDir\*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
           if (-not $exe) {
-            Write-Error "No .exe found in build\windows\x64\runner\Release\!"
+            Write-Error "No .exe found in ${buildDir}!"
             exit 1
           }
           Write-Output "$($exe.Name) ✅"
 
       - name: Build MSIX installer
+        working-directory: ${{ github.workspace }}
         shell: pwsh
         run: |
           dart run msix:create --install-certificate false
@@ -55,16 +58,16 @@ jobs:
       - name: Verify MSIX exists
         shell: pwsh
         run: |
-          echo "Buscando archivos .msix en el workspace..."
-          $msixFiles = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Filter "*.msix" -ErrorAction SilentlyContinue
+          Write-Host "Buscando archivos .msix en el workspace..."
+          $msixFiles = Get-ChildItem -Path "${{ github.workspace }}" -Recurse -Filter "*.msix" -ErrorAction SilentlyContinue
 
           if ($msixFiles) {
               Write-Host "Se encontro el instalador MSIX en: $($msixFiles[0].FullName)"
-              Copy-Item -Path $msixFiles[0].FullName -Destination "$env:GITHUB_WORKSPACE\Norm_${{ github.ref_name }}.msix" -Force
-              Write-Host "Instalador copiado exitosamente a $env:GITHUB_WORKSPACE\Norm_${{ github.ref_name }}.msix"
+              Copy-Item -Path $msixFiles[0].FullName -Destination "${{ github.workspace }}\Norm_${{ github.ref_name }}.msix" -Force
+              Write-Host "Instalador copiado exitosamente a ${{ github.workspace }}\Norm_${{ github.ref_name }}.msix"
           } else {
               Write-Host "Estructura actual del directorio build:"
-              Get-ChildItem -Path "$env:GITHUB_WORKSPACE\build" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
+              Get-ChildItem -Path "${{ github.workspace }}\build" -Recurse -ErrorAction SilentlyContinue | Select-Object FullName
               Write-Error "No se encontro ningun archivo .msix en todo el espacio de trabajo!"
           }
 

@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.7.5+1
+version: 1.8.1+1
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -94,10 +94,11 @@ msix_config:
   display_name: Norm
   publisher_display_name: Norm Software
   identity_name: com.norm.app
-  msix_version: 1.7.5.0
+  msix_version: 1.8.1.0
   logo_path: assets/icon/icon.png
   install_certificate: false
   capabilities: "internetClient,enterpriseAuthentication"
+  build_files: build\windows\x64\runner\Release
 
 flutter_native_splash:
   color: "#0B0B0F"
