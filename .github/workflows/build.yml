@@ -330,31 +330,26 @@ jobs:
           name: Norm ${{ github.ref_name }}
           body: |
             ## Norm ${{ github.ref_name }}
-
             ### 📥 Descargas
-
             **Windows**
             - `Norm_${{ github.ref_name }}.msix` — Instalador MSIX
             - `Norm_${{ github.ref_name }}_Setup.exe` — Instalador Inno Setup
-
             **Linux**
             - `Norm_Linux_${{ github.ref_name }}.deb` — Paquete Debian (amd64)
-
             **Android** (experimental)
             - `Norm_${{ github.ref_name }}_arm64-v8a.apk` — Dispositivos modernos
             - `Norm_${{ github.ref_name }}_armeabi-v7a.apk` — Dispositivos antiguos
             - `Norm_${{ github.ref_name }}_x86_64.apk` — Emuladores
-
             **macOS** (experimental)
             - `Norm_macOS_${{ github.ref_name }}.dmg` — Imagen de disco para macOS
           draft: false
           prerelease: false
-          files:
-            - artifacts/**/*.msix
-            - artifacts/**/*.exe
-            - artifacts/**/*.deb
-            - artifacts/**/*.dmg
-            - artifacts/**/*.apk
+          files: |
+            artifacts/**/*.msix
+            artifacts/**/*.exe
+            artifacts/**/*.deb
+            artifacts/**/*.dmg
+            artifacts/**/*.apk
 
   deploy-pages:
     runs-on: ubuntu-latest
