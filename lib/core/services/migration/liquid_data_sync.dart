@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2026 Norm Project. All rights reserved.
+ * Licensed under the GNU Affero General Public License v3.0 (AGPLv3).
+ */
+
 import 'dart:async';
 import 'dart:collection';
 

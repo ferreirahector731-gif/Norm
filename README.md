@@ -55,6 +55,16 @@ Every piece of content can be referenced, embedded, or projected into any other 
 
 ---
 
+## Official Releases
+
+The only certified, signed, and official versions of **Norm.** are distributed exclusively through the project's GitHub Releases page. Binaries downloaded from any other source are not verified and may pose security or integrity risks.
+
+> **Download safely**: https://github.com/ferreirahector731-gif/Norm/releases
+
+See [`TRADEMARK.md`](./TRADEMARK.md) for brand usage guidelines.
+
+---
+
 ## Licensing (AGPLv3 / Dual-Licensing)
 
 To protect development effort and guarantee ecosystem freedom, **Norm.** is distributed under a dual-licensing model:
