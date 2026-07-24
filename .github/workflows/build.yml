@@ -178,7 +178,7 @@ jobs:
       - name: Install Linux deps
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+          sudo apt-get install -y -qq clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev dpkg-dev
 
       - name: Generate assets
         run: |
@@ -200,15 +200,57 @@ jobs:
             exit 1
           fi
 
-      - name: Package
+      - name: Package (.deb)
         run: |
-          cd build/linux/x64/release/bundle
-          tar czf "Norm_Linux_${{ github.ref_name }}.tar.gz" *
+          PKG_ROOT=$(pwd)/linux-package
+          rm -rf "$PKG_ROOT"
+          mkdir -p "$PKG_ROOT/DEBIAN"
+          mkdir -p "$PKG_ROOT/usr/share/norm"
+          mkdir -p "$PKG_ROOT/usr/bin"
+          mkdir -p "$PKG_ROOT/usr/share/applications"
+          mkdir -p "$PKG_ROOT/usr/share/icons/hicolor/256x256/apps"
+
+          cp -r build/linux/x64/release/bundle/* "$PKG_ROOT/usr/share/norm/"
+          chmod +x "$PKG_ROOT/usr/share/norm/nota_ia_app"
+          ln -sf /usr/share/norm/nota_ia_app "$PKG_ROOT/usr/bin/norm"
+
+          if [ -f "linux/icon.png" ]; then
+            cp linux/icon.png "$PKG_ROOT/usr/share/icons/hicolor/256x256/apps/com.norm.app.png"
+          fi
+
+          printf '%s\n' \
+            '[Desktop Entry]' \
+            'Name=Norm' \
+            'Comment=Norm — Tu espacio para pensar' \
+            'Exec=/usr/bin/norm' \
+            'Icon=com.norm.app' \
+            'Terminal=false' \
+            'Type=Application' \
+            'Categories=Office;Utility;' \
+            'StartupWMClass=nota_ia_app' \
+            > "$PKG_ROOT/usr/share/applications/com.norm.app.desktop"
+
+          VERSION="${GITHUB_REF_NAME#v}"
+          printf '%s\n' \
+            'Package: norm' \
+            "Version: $VERSION" \
+            'Section: utils' \
+            'Priority: optional' \
+            'Architecture: amd64' \
+            'Depends: libgtk-3-0 (>= 3.24), liblzma5 (>= 5.2), libc6 (>= 2.31)' \
+            'Maintainer: Norm Studio <norm@norm.app>' \
+            'Description: Norm — Tu espacio para pensar' \
+            ' Notas, pizarrones y ofimática en un espacio limpio' \
+            ' y privado con asistente local.' \
+            > "$PKG_ROOT/DEBIAN/control"
+
+          dpkg-deb --build "$PKG_ROOT" "$PKG_ROOT/../Norm_Linux_${{ github.ref_name }}.deb"
+          echo "✅ .deb built at $(ls -lh "$PKG_ROOT/../Norm_Linux_${{ github.ref_name }}.deb" | awk '{print $5}')"
 
       - uses: actions/upload-artifact@v4
         with:
           name: linux-build
-          path: Norm_Linux_${{ github.ref_name }}.tar.gz
+          path: Norm_Linux_${{ github.ref_name }}.deb
 
   build-macos:
     continue-on-error: true
@@ -256,15 +298,20 @@ jobs:
             exit 1
           fi
 
-      - name: Package macOS
+      - name: Package (.dmg)
         run: |
-          cd build/macos/Build/Products/Release
-          zip -r -y "Norm_macOS_${{ github.ref_name }}.zip" "nota_ia_app.app"
+          APP="build/macos/Build/Products/Release/nota_ia_app.app"
+          DMG="Norm_macOS_${{ github.ref_name }}.dmg"
+          hdiutil create -volname "Norm ${{ github.ref_name }}" \
+            -srcfolder "$APP" \
+            -ov -format UDZO -fs HFS+ \
+            "$DMG"
+          echo "✅ .dmg built at $(du -h "$DMG" | cut -f1)"
 
       - uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: Norm_macOS_${{ github.ref_name }}.zip
+          path: Norm_macOS_${{ github.ref_name }}.dmg
 
   release:
     name: Create Release
@@ -291,7 +338,7 @@ jobs:
             - `Norm_${{ github.ref_name }}_Setup.exe` — Instalador Inno Setup
 
             **Linux**
-            - `Norm_Linux_${{ github.ref_name }}.tar.gz` — Bundle portable
+            - `Norm_Linux_${{ github.ref_name }}.deb` — Paquete Debian (amd64)
 
             **Android** (experimental)
             - `Norm_${{ github.ref_name }}_arm64-v8a.apk` — Dispositivos modernos
@@ -299,10 +346,15 @@ jobs:
             - `Norm_${{ github.ref_name }}_x86_64.apk` — Emuladores
 
             **macOS** (experimental)
-            - `Norm_macOS_${{ github.ref_name }}.zip` — Aplicación para macOS
+            - `Norm_macOS_${{ github.ref_name }}.dmg` — Imagen de disco para macOS
           draft: false
           prerelease: false
-          files: artifacts/*/*
+          files:
+            - artifacts/**/*.msix
+            - artifacts/**/*.exe
+            - artifacts/**/*.deb
+            - artifacts/**/*.dmg
+            - artifacts/**/*.apk
 
   deploy-pages:
     runs-on: ubuntu-latest

@@ -89,3 +89,7 @@ local.properties
 
 # ── Instaladores generados ───────────────────────────────────
 installer/Output/
+
+node_modules/
+package.json
+package-lock.json
